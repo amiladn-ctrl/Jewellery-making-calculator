@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Jewelry Cost & Retail Pricing Calculator</title>
+  <style>
+    :root {
+      --bg: #f4f1ec;
+      --surface: #ffffff;
+      --ink: #1c1917;
+      --muted: #78716c;
+      --line: #e7e5e4;
+      --accent: #0f766e;
+      --accent-soft: #ccfbf1;
+      --gold: #b45309;
+      --gold-soft: #ffedd5;
+      --rose: #9f1239;
+      --rose-soft: #ffe4e6;
+      --shadow: 0 10px 30px rgba(28, 25, 23, 0.08);
+      --radius: 16px;
+      --font: "Segoe UI", system-ui, -apple-system, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: var(--font);
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, #fde68a33, transparent 28%),
+        radial-gradient(circle at top right, #99f6e433, transparent 24%),
+        var(--bg);
+      min-height: 100vh;
+    }
+
+    .app {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 20px 16px 48px;
+    }
+
+    header.app-header {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 20px;
+    }
+
+    .brand {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+    }
+
+    .brand-mark {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #0f766e, #134e4a);
+      color: white;
+      display: grid;
+      place-items: center;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      box-shadow: var(--shadow);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.35rem, 2.5vw, 1.85rem);
+      line-height: 1.15;
+    }
+
+    .subtitle {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .header-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    button, .btn {
+      appearance: none;
+      border: none;
+      border-radius: 12px;
+      padding: 11px 16px;
+      font: inherit;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+    }
+
+    button:active { transform: translateY(1px); }
+
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+      box-shadow: 0 8px 18px rgba(15, 118, 110, 0.25);
+    }
+
+    .btn-secondary {
+      background: white;
+      color: var(--ink);
+      border: 1px solid var(--line);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--muted);
+      border: 1px dashed var(--line);
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1.35fr 0.9fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .panel, .summary-card, .table-card {
+      background: var(--surface);
+      border: 1px solid rgba(231, 229, 228, 0.9);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .panel { padding: 8px; }
+
+    details.accordion {
+      border-bottom: 1px solid var(--line);
+    }
+
+    details.accordion:last-child { border-bottom: none; }
+
+    details.accordion > summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 16px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      font-weight: 700;
+    }
+
+    details.accordion > summary::-webkit-details-marker { display: none; }
+
+    details.accordion > summary::after {
+      content: "+";
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      display: grid;
+      place-items: center;
+      background: #f5f5f4;
+      color: var(--muted);
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+
+    details.accordion[open] > summary::after { content: "–"; }
+
+    .accordion-body {
+      padding: 0 14px 16px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .field.full { grid-column: 1 / -1; }
+
+    label {
+      font-size: 0.84rem;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    input[type="number"],
+    select {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 11px 12px;
+      font: inherit;
+      background: #fafaf9;
+      color: var(--ink);
+      outline: none;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+    }
+
+    input[type="number"]:focus,
+    select:focus {
+      border-color: #14b8a6;
+      background: white;
+      box-shadow: 0 0 0 4px rgba(20, 184, 166, 0.12);
+    }
+
+    .hint {
+      font-size: 0.78rem;
+      color: #a8a29e;
+    }
+
+    .subtotal-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: #fafaf9;
+      border: 1px dashed var(--line);
+      font-weight: 700;
+    }
+
+    .subtotal-row span:last-child { color: var(--accent); }
+
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: #fafaf9;
+      border: 1px solid var(--line);
+    }
+
+    .checkbox-row input { width: 18px; height: 18px; accent-color: var(--accent); }
+
+    .summary-wrap {
+      position: sticky;
+      top: 16px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .summary-card { padding: 18px; }
+
+    .summary-card h2 {
+      margin: 0 0 4px;
+      font-size: 1.05rem;
+    }
+
+    .summary-kicker {
+      margin: 0 0 14px;
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    .cogs-hero {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 12px;
+      padding: 16px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #134e4a, #0f766e);
+      color: white;
+      margin-bottom: 14px;
+    }
+
+    .cogs-hero .label {
+      font-size: 0.85rem;
+      opacity: 0.85;
+      margin-bottom: 4px;
+    }
+
+    .cogs-hero .value {
+      font-size: clamp(1.6rem, 3vw, 2rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+    }
+
+    .bars {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .bar-row {
+      display: grid;
+      grid-template-columns: 92px 1fr 54px;
+      gap: 8px;
+      align-items: center;
+      font-size: 0.82rem;
+    }
+
+    .bar-track {
+      height: 10px;
+      background: #f5f5f4;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: inherit;
+      transition: width 0.25s ease;
+    }
+
+    .bar-fill.materials { background: #0f766e; }
+    .bar-fill.casting { background: #0891b2; }
+    .bar-fill.labor { background: #b45309; }
+    .bar-fill.overhead { background: #9f1239; }
+
+    .price-tags {
+      display: grid;
+      gap: 10px;
+    }
+
+    .price-tag {
+      border-radius: 14px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      background: #fafaf9;
+    }
+
+    .price-tag.local {
+      background: linear-gradient(180deg, #fff7ed, #ffffff);
+      border-color: #fed7aa;
+    }
+
+    .price-tag.intl {
+      background: linear-gradient(180deg, #ecfeff, #ffffff);
+      border-color: #a5f3fc;
+    }
+
+    .price-tag .tag-label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .price-tag .tag-value {
+      margin-top: 6px;
+      font-size: 1.45rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+    }
+
+    .price-tag .tag-meta {
+      margin-top: 4px;
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+
+    .mini-metrics {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .mini {
+      padding: 10px;
+      border-radius: 12px;
+      background: #fafaf9;
+      border: 1px solid var(--line);
+    }
+
+    .mini .m-label {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .mini .m-value {
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+
+    .section-title {
+      margin: 26px 0 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 12px;
+    }
+
+    .section-title h2 {
+      margin: 0;
+      font-size: 1.2rem;
+    }
+
+    .section-title p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .table-card {
+      padding: 8px;
+      overflow: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 720px;
+    }
+
+    th, td {
+      padding: 12px 14px;
+      text-align: left;
+      border-bottom: 1px solid var(--line);
+      font-size: 0.92rem;
+    }
+
+    th {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--muted);
+      background: #fafaf9;
+    }
+
+    tr:last-child td { border-bottom: none; }
+
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+    .positive { color: #047857; font-weight: 700; }
+    .emphasis { font-weight: 800; }
+
+    .market-controls {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-top: 14px;
+    }
+
+    .market-box {
+      padding: 14px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: #fafaf9;
+    }
+
+    .market-box h3 {
+      margin: 0 0 12px;
+      font-size: 0.98rem;
+    }
+
+    .save-note {
+      margin-top: 10px;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 20px;
+      transform: translateX(-50%) translateY(20px);
+      background: #1c1917;
+      color: white;
+      padding: 12px 16px;
+      border-radius: 999px;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.25s ease;
+      z-index: 50;
+      font-size: 0.9rem;
+      box-shadow: var(--shadow);
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    @media (max-width: 960px) {
+      .layout { grid-template-columns: 1fr; }
+      .summary-wrap { position: static; }
+      .market-controls { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 640px) {
+      .grid-2 { grid-template-columns: 1fr; }
+      .mini-metrics { grid-template-columns: 1fr; }
+      .app { padding: 14px 12px 36px; }
+      .header-actions { width: 100%; }
+      .header-actions button { flex: 1 1 auto; }
+    }
+
+    @media print {
+      body {
+        background: white;
+      }
+      .app-header .header-actions,
+      .save-note,
+      .toast {
+        display: none !important;
+      }
+      .app { max-width: none; padding: 0; }
+      .layout { display: block; }
+      .summary-wrap { position: static; margin-top: 16px; }
+      .panel, .summary-card, .table-card {
+        box-shadow: none;
+        border: 1px solid #ddd;
+        break-inside: avoid;
+      }
+      details.accordion { border: none; }
+      details.accordion > summary::after { display: none; }
+      details.accordion[open] > summary,
+      details.accordion > summary {
+        padding-left: 0;
+        padding-right: 0;
+      }
+      .accordion-body { padding-left: 0; padding-right: 0; }
+      input, select {
+        border: none;
+        background: transparent;
+        padding-left: 0;
+      }
+      .print-only-title {
+        display: block !important;
+        margin-bottom: 8px;
+      }
+    }
+
+    .print-only-title { display: none; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="app-header">
+      <div class="brand">
+        <div class="brand-mark">JC</div>
+        <div>
+          <h1>Jewelry Cost & Retail Pricing Calculator</h1>
+          <p class="subtitle">COGS engine + BiH local vs international retail matrix</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button type="button" class="btn-secondary" id="resetBtn">Reset to Defaults</button>
+        <button type="button" class="btn-primary" id="printBtn">Export PDF / Print Sheet</button>
+      </div>
+    </header>
+
+    <div class="print-only-title">
+      <strong>Product Cost Card</strong>
+      <div id="printTimestamp"></div>
+    </div>
+
+    <div class="layout">
+      <section class="panel" aria-label="Cost inputs">
+        <details class="accordion" open>
+          <summary>A. Raw Materials</summary>
+          <div class="accordion-body">
+            <div class="grid-2">
+              <div class="field">
+                <label for="metalWeight">Metal Weight (g)</label>
+                <input type="number" id="metalWeight" min="0" step="0.01" value="8" />
+              </div>
+              <div class="field">
+                <label for="scrapBuffer">Scrap / Waste Buffer (%)</label>
+                <input type="number" id="scrapBuffer" min="0" step="0.1" value="12" />
+              </div>
+              <div class="field">
+                <label for="metalSpot">Metal Spot Price (€/g)</label>
+                <input type="number" id="metalSpot" min="0" step="0.01" value="62" />
+              </div>
+              <div class="field">
+                <label for="gemstones">Gemstones & Pearls (€)</label>
+                <input type="number" id="gemstones" min="0" step="0.01" value="45" />
+              </div>
+              <div class="field">
+                <label for="findings">Findings & Chains (€)</label>
+                <input type="number" id="findings" min="0" step="0.01" value="12" />
+              </div>
+              <div class="field">
+                <label for="consumables">Workshop Consumables / piece (€)</label>
+                <input type="number" id="consumables" min="0" step="0.01" value="1.5" />
+              </div>
+            </div>
+            <div class="subtotal-row">
+              <span>Adjusted metal · Subtotal materials</span>
+              <span id="materialsSubtotalLabel">€0.00</span>
+            </div>
+            <div class="hint" id="metalHint">Adjusted metal weight: 0 g</div>
+          </div>
+        </details>
+
+        <details class="accordion" open>
+          <summary>B. Casting & External Services</summary>
+          <div class="accordion-body">
+            <div class="grid-2">
+              <div class="field">
+                <label for="waxPrint">Wax / 3D Print Cost (€)</label>
+                <input type="number" id="waxPrint" min="0" step="0.01" value="8" />
+              </div>
+              <div class="field">
+                <label for="castingFee">Casting Fee (€)</label>
+                <input type="number" id="castingFee" min="0" step="0.01" value="18" />
+              </div>
+              <div class="field full">
+                <label for="plating">Plating & Hallmarking Fees (€)</label>
+                <input type="number" id="plating" min="0" step="0.01" value="10" />
+              </div>
+            </div>
+            <div class="subtotal-row">
+              <span>Subtotal casting / services</span>
+              <span id="castingSubtotalLabel">€0.00</span>
+            </div>
+          </div>
+        </details>
+
+        <details class="accordion" open>
+          <summary>C. Artisan Bench Labor</summary>
+          <div class="accordion-body">
+            <div class="grid-2">
+              <div class="field">
+                <label for="hourlyWage">Target Hourly Wage (€/hr)</label>
+                <input type="number" id="hourlyWage" min="0" step="0.01" value="30" />
+              </div>
+              <div class="field">
+                <label for="fabMinutes">Fabrication / Carving (min)</label>
+                <input type="number" id="fabMinutes" min="0" step="1" value="90" />
+              </div>
+              <div class="field">
+                <label for="setMinutes">Setting & Polishing (min)</label>
+                <input type="number" id="setMinutes" min="0" step="1" value="45" />
+              </div>
+              <div class="field">
+                <label for="qcMinutes">QC & Packing (min)</label>
+                <input type="number" id="qcMinutes" min="0" step="1" value="15" />
+              </div>
+            </div>
+            <div class="subtotal-row">
+              <span>Labor hours · Subtotal labor</span>
+              <span id="laborSubtotalLabel">€0.00</span>
+            </div>
+            <div class="hint" id="laborHint">Total labor: 0.00 h</div>
+          </div>
+        </details>
+
+        <details class="accordion" open>
+          <summary>D. Overhead Allocation (Per Piece)</summary>
+          <div class="accordion-body">
+            <div class="grid-2">
+              <div class="field">
+                <label for="rentShare">Studio Rent & Utilities Share (€)</label>
+                <input type="number" id="rentShare" min="0" step="0.01" value="6" />
+              </div>
+              <div class="field">
+                <label for="packaging">Packaging & Unboxing (€)</label>
+                <input type="number" id="packaging" min="0" step="0.01" value="3.5" />
+              </div>
+              <div class="field">
+                <label for="softwareMkt">Software & Marketing (€)</label>
+                <input type="number" id="softwareMkt" min="0" step="0.01" value="4" />
+              </div>
+              <div class="field">
+                <label for="tools">Tool Depreciation / Repair (€)</label>
+                <input type="number" id="tools" min="0" step="0.01" value="2.5" />
+              </div>
+            </div>
+            <div class="subtotal-row">
+              <span>Subtotal overhead</span>
+              <span id="overheadSubtotalLabel">€0.00</span>
+            </div>
+          </div>
+        </details>
+
+        <details class="accordion" open>
+          <summary>E. Market Multipliers & Fees</summary>
+          <div class="accordion-body">
+            <div class="market-controls">
+              <div class="market-box">
+                <h3>Local Market (BiH)</h3>
+                <div class="grid-2">
+                  <div class="field">
+                    <label for="localWholesaleMult">Wholesale Multiplier</label>
+                    <input type="number" id="localWholesaleMult" min="0" step="0.1" value="2" />
+                  </div>
+                  <div class="field">
+                    <label for="localRetailMult">Retail Multiplier</label>
+                    <input type="number" id="localRetailMult" min="0" step="0.1" value="2" />
+                  </div>
+                  <div class="field">
+                    <label for="localPayFee">Payment Fee (%)</label>
+                    <input type="number" id="localPayFee" min="0" step="0.1" value="1.5" />
+                  </div>
+                  <div class="field">
+                    <label for="localShipping">Local Shipping (KM)</label>
+                    <input type="number" id="localShipping" min="0" step="0.01" value="6" />
+                  </div>
+                  <div class="field full">
+                    <div class="checkbox-row">
+                      <input type="checkbox" id="localVat" checked />
+                      <label for="localVat" style="margin:0">Apply PDV / VAT 17%</label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="market-box">
+                <h3>International Market</h3>
+                <div class="grid-2">
+                  <div class="field">
+                    <label for="intlWholesaleMult">Wholesale Multiplier</label>
+                    <input type="number" id="intlWholesaleMult" min="0" step="0.1" value="2.2" />
+                  </div>
+                  <div class="field">
+                    <label for="intlRetailMult">Retail Multiplier</label>
+                    <input type="number" id="intlRetailMult" min="0" step="0.1" value="2.2" />
+                  </div>
+                  <div class="field">
+                    <label for="intlCurrency">Currency</label>
+                    <select id="intlCurrency">
+                      <option value="EUR" selected>EUR (€)</option>
+                      <option value="USD">USD ($)</option>
+                    </select>
+                  </div>
+                  <div class="field">
+                    <label for="fxRate">FX Rate (1 EUR = x USD)</label>
+                    <input type="number" id="fxRate" min="0" step="0.0001" value="1.08" />
+                  </div>
+                  <div class="field">
+                    <label for="gatewayFee">Platform / Gateway Fee (%)</label>
+                    <input type="number" id="gatewayFee" min="0" step="0.1" value="4.5" />
+                  </div>
+                  <div class="field">
+                    <label for="listingFee">Listing Fee (%) Etsy 6.5 / Shopify 0</label>
+                    <input type="number" id="listingFee" min="0" step="0.1" value="6.5" />
+                  </div>
+                  <div class="field">
+                    <label for="intlShipping">Express Shipping Allowance (€)</label>
+                    <input type="number" id="intlShipping" min="0" step="0.01" value="18" />
+                  </div>
+                  <div class="field">
+                    <label for="customsBuffer">Customs / Duty Buffer (%)</label>
+                    <input type="number" id="customsBuffer" min="0" step="0.1" value="2" />
+                  </div>
+                  <div class="field full">
+                    <label for="forexBuffer">Currency Risk & Forex Buffer (%)</label>
+                    <input type="number" id="forexBuffer" min="0" step="0.1" value="3" />
+                  </div>
+                </div>
+              </div>
+            </div>
+            <p class="save-note">Inputs auto-save to this browser via localStorage. Fixed EUR→BAM rate: 1.95583.</p>
+          </div>
+        </details>
+      </section>
+
+      <aside class="summary-wrap" aria-label="Live summary">
+        <div class="summary-card">
+          <h2>Live Pricing Summary</h2>
+          <p class="summary-kicker">Updates instantly as you type</p>
+
+          <div class="cogs-hero">
+            <div>
+              <div class="label">Total Base COGS</div>
+              <div class="value" id="totalCogs">€0.00</div>
+            </div>
+            <div style="text-align:right; font-size:0.85rem; opacity:0.9">
+              Materials + Casting<br />Labor + Overhead
+            </div>
+          </div>
+
+          <div class="bars" aria-label="Cost breakdown">
+            <div class="bar-row">
+              <span>Materials</span>
+              <div class="bar-track"><div class="bar-fill materials" id="barMaterials"></div></div>
+              <span id="pctMaterials">0%</span>
+            </div>
+            <div class="bar-row">
+              <span>Casting</span>
+              <div class="bar-track"><div class="bar-fill casting" id="barCasting"></div></div>
+              <span id="pctCasting">0%</span>
+            </div>
+            <div class="bar-row">
+              <span>Labor</span>
+              <div class="bar-track"><div class="bar-fill labor" id="barLabor"></div></div>
+              <span id="pctLabor">0%</span>
+            </div>
+            <div class="bar-row">
+              <span>Overhead</span>
+              <div class="bar-track"><div class="bar-fill overhead" id="barOverhead"></div></div>
+              <span id="pctOverhead">0%</span>
+            </div>
+          </div>
+
+          <div class="price-tags">
+            <div class="price-tag local">
+              <div class="tag-label">Suggested BiH Price (KM)</div>
+              <div class="tag-value" id="bihPrice">0.00 KM</div>
+              <div class="tag-meta" id="bihMeta">Includes shipping · VAT toggle aware</div>
+            </div>
+            <div class="price-tag intl">
+              <div class="tag-label">Suggested International Price</div>
+              <div class="tag-value" id="intlPrice">€0.00</div>
+              <div class="tag-meta" id="intlMeta">Fees + shipping allowance applied</div>
+            </div>
+          </div>
+
+          <div class="mini-metrics">
+            <div class="mini">
+              <div class="m-label">Local wholesale</div>
+              <div class="m-value" id="localWholesale">0.00 KM</div>
+            </div>
+            <div class="mini">
+              <div class="m-label">Intl wholesale</div>
+              <div class="m-value" id="intlWholesale">€0.00</div>
+            </div>
+            <div class="mini">
+              <div class="m-label">Local net margin</div>
+              <div class="m-value" id="localMargin">0%</div>
+            </div>
+            <div class="mini">
+              <div class="m-label">Intl net margin</div>
+              <div class="m-value" id="intlMargin">0%</div>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <div class="section-title">
+      <div>
+        <h2>Market Comparison</h2>
+        <p>Exact costs, markups, platform fees, and net profit margins</p>
+      </div>
+    </div>
+
+    <section class="table-card" aria-label="Comparison table">
+      <table>
+        <thead>
+          <tr>
+            <th>Line item</th>
+            <th class="num">Local (BiH / KM)</th>
+            <th class="num">International</th>
+          </tr>
+        </thead>
+        <tbody id="comparisonBody"></tbody>
+      </table>
+    </section>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    (function () {
+      const EUR_TO_BAM = 1.95583;
+      const STORAGE_KEY = "jewelry-cogs-calculator-v1";
+
+      const defaults = {
+        metalWeight: 8,
+        scrapBuffer: 12,
+        metalSpot: 62,
+        gemstones: 45,
+        findings: 12,
+        consumables: 1.5,
+        waxPrint: 8,
+        castingFee: 18,
+        plating: 10,
+        hourlyWage: 30,
+        fabMinutes: 90,
+        setMinutes: 45,
+        qcMinutes: 15,
+        rentShare: 6,
+        packaging: 3.5,
+        softwareMkt: 4,
+        tools: 2.5,
+        localWholesaleMult: 2,
+        localRetailMult: 2,
+        localPayFee: 1.5,
+        localShipping: 6,
+        localVat: true,
+        intlWholesaleMult: 2.2,
+        intlRetailMult: 2.2,
+        intlCurrency: "EUR",
+        fxRate: 1.08,
+        gatewayFee: 4.5,
+        listingFee: 6.5,
+        intlShipping: 18,
+        customsBuffer: 2,
+        forexBuffer: 3
+      };
+
+      const ids = Object.keys(defaults);
+
+      const el = (id) => document.getElementById(id);
+
+      function num(id) {
+        const value = parseFloat(el(id).value);
+        return Number.isFinite(value) ? value : 0;
+      }
+
+      function money(value, currency) {
+        const abs = Math.abs(value);
+        const formatted = abs.toLocaleString(undefined, {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        });
+        const sign = value < 0 ? "-" : "";
+        if (currency === "BAM") return sign + formatted + " KM";
+        if (currency === "USD") return sign + "$" + formatted;
+        return sign + "€" + formatted;
+      }
+
+      function pct(value) {
+        return (value * 100).toLocaleString(undefined, {
+          minimumFractionDigits: 1,
+          maximumFractionDigits: 1
+        }) + "%";
+      }
+
+      function readState() {
+        const state = {};
+        ids.forEach((id) => {
+          if (id === "localVat") {
+            state[id] = el(id).checked;
+          } else if (id === "intlCurrency") {
+            state[id] = el(id).value;
+          } else {
+            state[id] = num(id);
+          }
+        });
+        return state;
+      }
+
+      function writeState(state) {
+        ids.forEach((id) => {
+          if (id === "localVat") {
+            el(id).checked = Boolean(state[id]);
+          } else {
+            el(id).value = state[id];
+          }
+        });
+      }
+
+      function saveState() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(readState()));
+        } catch (err) {
+          // Ignore quota / private mode failures
+        }
+      }
+
+      function loadState() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) return false;
+          const parsed = JSON.parse(raw);
+          writeState({ ...defaults, ...parsed });
+          return true;
+        } catch (err) {
+          return false;
+        }
+      }
+
+      function showToast(message) {
+        const toast = el("toast");
+        toast.textContent = message;
+        toast.classList.add("show");
+        clearTimeout(showToast._t);
+        showToast._t = setTimeout(() => toast.classList.remove("show"), 1800);
+      }
+
+      function calc(state) {
+        const scrap = state.scrapBuffer / 100;
+        const adjustedMetal = state.metalWeight * (1 + scrap);
+        const totalMetalCost = adjustedMetal * state.metalSpot;
+        const materials =
+          totalMetalCost +
+          state.gemstones +
+          state.findings +
+          state.consumables;
+
+        const casting =
+          state.waxPrint + state.castingFee + state.plating;
+
+        const totalMinutes =
+          state.fabMinutes + state.setMinutes + state.qcMinutes;
+        const laborHours = totalMinutes / 60;
+        const labor = laborHours * state.hourlyWage;
+
+        const overhead =
+          state.rentShare +
+          state.packaging +
+          state.softwareMkt +
+          state.tools;
+
+        const cogs = materials + casting + labor + overhead;
+
+        // Local market
+        const localWholesaleEur = cogs * state.localWholesaleMult;
+        const localRetailEur = localWholesaleEur * state.localRetailMult;
+        const localRetailBam = localRetailEur * EUR_TO_BAM;
+        const localPay = state.localPayFee / 100;
+        const localVatRate = state.localVat ? 0.17 : 0;
+        const localFinalBam =
+          localRetailBam * (1 + localPay) * (1 + localVatRate) +
+          state.localShipping;
+
+        // Approximate net to artisan after payment fee and before considering shipping as pure pass-through
+        // Shipping is charged to customer and also a cost, so contribution uses product portion.
+        const localProductPortionBam =
+          localRetailBam * (1 + localPay) * (1 + localVatRate);
+        const localFeesBam = localProductPortionBam - localRetailBam * (1 + localVatRate);
+        // Net revenue after VAT remittance and payment fee, excluding shipping cashflow
+        const localNetRevenueBam =
+          (localRetailBam * (1 + localPay) * (1 + localVatRate)) /
+            (1 + localVatRate) -
+          localRetailBam * localPay;
+        // Simpler practical margin: final price minus COGS(BAM) minus shipping minus estimated VAT and fees
+        const cogsBam = cogs * EUR_TO_BAM;
+        const vatAmountBam = state.localVat
+          ? localRetailBam * (1 + localPay) * localVatRate
+          : 0;
+        const payFeeAmountBam = localRetailBam * (1 + localVatRate) * localPay;
+        // Fee applied on taxed base in formula: Base * (1+pay) * (1+tax)
+        // Expand: base + base*pay + base*tax + base*pay*tax
+        const localPayAmount = localRetailBam * localPay * (1 + localVatRate);
+        const localVatAmount = localRetailBam * (1 + localPay) * localVatRate;
+        const localNetProfitBam =
+          localFinalBam -
+          cogsBam -
+          state.localShipping -
+          localPayAmount -
+          localVatAmount;
+        const localMargin =
+          localFinalBam > 0 ? localNetProfitBam / localFinalBam : 0;
+
+        // International
+        const intlWholesaleEur = cogs * state.intlWholesaleMult;
+        const intlRetailEur = intlWholesaleEur * state.intlRetailMult;
+        const feeStack =
+          state.gatewayFee / 100 +
+          state.listingFee / 100 +
+          state.customsBuffer / 100 +
+          state.forexBuffer / 100;
+        const intlFinalEur =
+          intlRetailEur * (1 + feeStack) + state.intlShipping;
+
+        const fx = state.fxRate > 0 ? state.fxRate : 1;
+        const intlIsUsd = state.intlCurrency === "USD";
+        const intlFinalDisplay = intlIsUsd ? intlFinalEur * fx : intlFinalEur;
+        const intlWholesaleDisplay = intlIsUsd
+          ? intlWholesaleEur * fx
+          : intlWholesaleEur;
+        const intlCurrencyCode = intlIsUsd ? "USD" : "EUR";
+
+        const feeAmountEur = intlRetailEur * feeStack;
+        const intlNetProfitEur =
+          intlFinalEur - cogs - state.intlShipping - feeAmountEur;
+        const intlMargin =
+          intlFinalEur > 0 ? intlNetProfitEur / intlFinalEur : 0;
+
+        const safe = (part) => (cogs > 0 ? part / cogs : 0);
+
+        return {
+          adjustedMetal,
+          totalMetalCost,
+          materials,
+          casting,
+          laborHours,
+          labor,
+          overhead,
+          cogs,
+          shares: {
+            materials: safe(materials),
+            casting: safe(casting),
+            labor: safe(labor),
+            overhead: safe(overhead)
+          },
+          local: {
+            wholesaleEur: localWholesaleEur,
+            retailEur: localRetailEur,
+            wholesaleBam: localWholesaleEur * EUR_TO_BAM,
+            retailBam: localRetailBam,
+            finalBam: localFinalBam,
+            payAmount: localPayAmount,
+            vatAmount: localVatAmount,
+            shipping: state.localShipping,
+            cogsBam,
+            netProfitBam: localNetProfitBam,
+            margin: localMargin,
+            vatOn: state.localVat
+          },
+          intl: {
+            wholesaleEur: intlWholesaleEur,
+            retailEur: intlRetailEur,
+            finalEur: intlFinalEur,
+            finalDisplay: intlFinalDisplay,
+            wholesaleDisplay: intlWholesaleDisplay,
+            currency: intlCurrencyCode,
+            feeStack,
+            feeAmountEur,
+            shipping: state.intlShipping,
+            netProfitEur: intlNetProfitEur,
+            netProfitDisplay: intlIsUsd
+              ? intlNetProfitEur * fx
+              : intlNetProfitEur,
+            margin: intlMargin,
+            gateway: state.gatewayFee,
+            listing: state.listingFee,
+            customs: state.customsBuffer,
+            forex: state.forexBuffer
+          }
+        };
+      }
+
+      function setBar(id, pctValue) {
+        const width = Math.max(0, Math.min(100, pctValue * 100));
+        el(id).style.width = width.toFixed(1) + "%";
+      }
+
+      function renderComparison(result) {
+        const local = result.local;
+        const intl = result.intl;
+        const cur = intl.currency;
+
+        const rows = [
+          ["Total Base COGS", money(local.cogsBam, "BAM"), money(result.cogs, "EUR") + (cur === "USD" ? " / " + money(result.cogs * num("fxRate"), "USD") : "")],
+          ["Wholesale multiplier price", money(local.wholesaleBam, "BAM"), money(intl.wholesaleDisplay, cur)],
+          ["Base retail (before market fees)", money(local.retailBam, "BAM"), money(cur === "USD" ? intl.retailEur * num("fxRate") : intl.retailEur, cur)],
+          ["Payment / gateway & platform fees", money(local.payAmount, "BAM"), money(cur === "USD" ? intl.feeAmountEur * num("fxRate") : intl.feeAmountEur, cur)],
+          ["VAT / PDV", local.vatOn ? money(local.vatAmount, "BAM") : "0.00 KM (off)", "n/a (destination dependent)"],
+          ["Shipping allowance / fee", money(local.shipping, "BAM"), money(cur === "USD" ? intl.shipping * num("fxRate") : intl.shipping, cur)],
+          ["Final suggested retail", money(local.finalBam, "BAM"), money(intl.finalDisplay, cur)],
+          ["Estimated net profit", money(local.netProfitBam, "BAM"), money(intl.netProfitDisplay, cur)],
+          ["Estimated net margin", pct(local.margin), pct(intl.margin)],
+          ["Fee stack notes", "Pay " + num("localPayFee").toFixed(1) + "%" + (local.vatOn ? " + PDV 17%" : " · no VAT"),
+            "Gateway " + intl.gateway.toFixed(1) + "% · Listing " + intl.listing.toFixed(1) + "% · Customs " + intl.customs.toFixed(1) + "% · FX " + intl.forex.toFixed(1) + "%"]
+        ];
+
+        el("comparisonBody").innerHTML = rows
+          .map((row, index) => {
+            const strong = index === 6 || index === 7 || index === 8;
+            return (
+              "<tr>" +
+              "<td class=\"" + (strong ? "emphasis" : "") + "\">" + row[0] + "</td>" +
+              "<td class=\"num " + (strong ? "emphasis" : "") + "\">" + row[1] + "</td>" +
+              "<td class=\"num " + (strong ? "emphasis" : "") + "\">" + row[2] + "</td>" +
+              "</tr>"
+            );
+          })
+          .join("");
+      }
+
+      function render() {
+        const state = readState();
+        const result = calc(state);
+
+        el("materialsSubtotalLabel").textContent = money(result.materials, "EUR");
+        el("castingSubtotalLabel").textContent = money(result.casting, "EUR");
+        el("laborSubtotalLabel").textContent = money(result.labor, "EUR");
+        el("overheadSubtotalLabel").textContent = money(result.overhead, "EUR");
+        el("metalHint").textContent =
+          "Adjusted metal weight: " +
+          result.adjustedMetal.toFixed(3) +
+          " g · Metal cost: " +
+          money(result.totalMetalCost, "EUR");
+        el("laborHint").textContent =
+          "Total labor: " + result.laborHours.toFixed(2) + " h";
+
+        el("totalCogs").textContent = money(result.cogs, "EUR");
+
+        setBar("barMaterials", result.shares.materials);
+        setBar("barCasting", result.shares.casting);
+        setBar("barLabor", result.shares.labor);
+        setBar("barOverhead", result.shares.overhead);
+
+        el("pctMaterials").textContent = Math.round(result.shares.materials * 100) + "%";
+        el("pctCasting").textContent = Math.round(result.shares.casting * 100) + "%";
+        el("pctLabor").textContent = Math.round(result.shares.labor * 100) + "%";
+        el("pctOverhead").textContent = Math.round(result.shares.overhead * 100) + "%";
+
+        el("bihPrice").textContent = money(result.local.finalBam, "BAM");
+        el("bihMeta").textContent =
+          (result.local.vatOn ? "PDV 17% on · " : "PDV off · ") +
+          "Pay fee " +
+          state.localPayFee
