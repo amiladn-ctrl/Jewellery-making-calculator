@@ -12,11 +12,8 @@
       --muted: #78716c;
       --line: #e7e5e4;
       --accent: #0f766e;
-      --accent-soft: #ccfbf1;
+      --accent-dark: #115e59;
       --gold: #b45309;
-      --gold-soft: #ffedd5;
-      --rose: #9f1239;
-      --rose-soft: #ffe4e6;
       --shadow: 0 10px 30px rgba(28, 25, 23, 0.08);
       --radius: 16px;
       --font: "Segoe UI", system-ui, -apple-system, sans-serif;
@@ -87,7 +84,7 @@
       gap: 10px;
     }
 
-    button, .btn {
+    button {
       appearance: none;
       border: none;
       border-radius: 12px;
@@ -106,17 +103,15 @@
       box-shadow: 0 8px 18px rgba(15, 118, 110, 0.25);
     }
 
+    .btn-primary:hover { background: var(--accent-dark); }
+
     .btn-secondary {
       background: white;
       color: var(--ink);
       border: 1px solid var(--line);
     }
 
-    .btn-ghost {
-      background: transparent;
-      color: var(--muted);
-      border: 1px dashed var(--line);
-    }
+    .btn-secondary:hover { background: #fafaf9; }
 
     .layout {
       display: grid;
@@ -152,6 +147,14 @@
     }
 
     details.accordion > summary::-webkit-details-marker { display: none; }
+
+    details.accordion > summary .meta {
+      margin-left: auto;
+      margin-right: 8px;
+      color: var(--accent);
+      font-size: 0.88rem;
+      font-weight: 700;
+    }
 
     details.accordion > summary::after {
       content: "+";
@@ -228,6 +231,7 @@
       background: #fafaf9;
       border: 1px dashed var(--line);
       font-weight: 700;
+      gap: 10px;
     }
 
     .subtotal-row span:last-child { color: var(--accent); }
@@ -242,7 +246,16 @@
       border: 1px solid var(--line);
     }
 
-    .checkbox-row input { width: 18px; height: 18px; accent-color: var(--accent); }
+    .checkbox-row input {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--accent);
+    }
+
+    .checkbox-row label {
+      margin: 0;
+      color: var(--ink);
+    }
 
     .summary-wrap {
       position: sticky;
@@ -391,10 +404,6 @@
 
     .section-title {
       margin: 26px 0 12px;
-      display: flex;
-      justify-content: space-between;
-      align-items: end;
-      gap: 12px;
     }
 
     .section-title h2 {
@@ -403,7 +412,7 @@
     }
 
     .section-title p {
-      margin: 0;
+      margin: 4px 0 0;
       color: var(--muted);
       font-size: 0.9rem;
     }
@@ -436,16 +445,19 @@
 
     tr:last-child td { border-bottom: none; }
 
-    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    td.num, th.num {
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
 
-    .positive { color: #047857; font-weight: 700; }
     .emphasis { font-weight: 800; }
+    .profit { color: #047857; font-weight: 800; }
 
     .market-controls {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 14px;
-      margin-top: 14px;
+      margin-top: 4px;
     }
 
     .market-box {
@@ -461,7 +473,7 @@
     }
 
     .save-note {
-      margin-top: 10px;
+      margin-top: 4px;
       font-size: 0.8rem;
       color: var(--muted);
     }
@@ -503,14 +515,10 @@
     }
 
     @media print {
-      body {
-        background: white;
-      }
+      body { background: white; }
       .app-header .header-actions,
       .save-note,
-      .toast {
-        display: none !important;
-      }
+      .toast { display: none !important; }
       .app { max-width: none; padding: 0; }
       .layout { display: block; }
       .summary-wrap { position: static; margin-top: 16px; }
@@ -519,23 +527,14 @@
         border: 1px solid #ddd;
         break-inside: avoid;
       }
-      details.accordion { border: none; }
       details.accordion > summary::after { display: none; }
-      details.accordion[open] > summary,
-      details.accordion > summary {
-        padding-left: 0;
-        padding-right: 0;
-      }
-      .accordion-body { padding-left: 0; padding-right: 0; }
       input, select {
-        border: none;
-        background: transparent;
+        border: none !important;
+        background: transparent !important;
+        box-shadow: none !important;
         padding-left: 0;
       }
-      .print-only-title {
-        display: block !important;
-        margin-bottom: 8px;
-      }
+      .print-only-title { display: block !important; margin-bottom: 8px; }
     }
 
     .print-only-title { display: none; }
@@ -565,7 +564,10 @@
     <div class="layout">
       <section class="panel" aria-label="Cost inputs">
         <details class="accordion" open>
-          <summary>A. Raw Materials</summary>
+          <summary>
+            A. Raw Materials
+            <span class="meta" id="metaMaterials">€0.00</span>
+          </summary>
           <div class="accordion-body">
             <div class="grid-2">
               <div class="field">
@@ -594,7 +596,7 @@
               </div>
             </div>
             <div class="subtotal-row">
-              <span>Adjusted metal · Subtotal materials</span>
+              <span>Materials subtotal</span>
               <span id="materialsSubtotalLabel">€0.00</span>
             </div>
             <div class="hint" id="metalHint">Adjusted metal weight: 0 g</div>
@@ -602,7 +604,10 @@
         </details>
 
         <details class="accordion" open>
-          <summary>B. Casting & External Services</summary>
+          <summary>
+            B. Casting & External Services
+            <span class="meta" id="metaCasting">€0.00</span>
+          </summary>
           <div class="accordion-body">
             <div class="grid-2">
               <div class="field">
@@ -619,14 +624,17 @@
               </div>
             </div>
             <div class="subtotal-row">
-              <span>Subtotal casting / services</span>
+              <span>Casting / services subtotal</span>
               <span id="castingSubtotalLabel">€0.00</span>
             </div>
           </div>
         </details>
 
         <details class="accordion" open>
-          <summary>C. Artisan Bench Labor</summary>
+          <summary>
+            C. Artisan Bench Labor
+            <span class="meta" id="metaLabor">€0.00</span>
+          </summary>
           <div class="accordion-body">
             <div class="grid-2">
               <div class="field">
@@ -647,7 +655,7 @@
               </div>
             </div>
             <div class="subtotal-row">
-              <span>Labor hours · Subtotal labor</span>
+              <span>Labor subtotal</span>
               <span id="laborSubtotalLabel">€0.00</span>
             </div>
             <div class="hint" id="laborHint">Total labor: 0.00 h</div>
@@ -655,7 +663,10 @@
         </details>
 
         <details class="accordion" open>
-          <summary>D. Overhead Allocation (Per Piece)</summary>
+          <summary>
+            D. Overhead Allocation (Per Piece)
+            <span class="meta" id="metaOverhead">€0.00</span>
+          </summary>
           <div class="accordion-body">
             <div class="grid-2">
               <div class="field">
@@ -676,7 +687,7 @@
               </div>
             </div>
             <div class="subtotal-row">
-              <span>Subtotal overhead</span>
+              <span>Overhead subtotal</span>
               <span id="overheadSubtotalLabel">€0.00</span>
             </div>
           </div>
@@ -694,21 +705,28 @@
                     <input type="number" id="localWholesaleMult" min="0" step="0.1" value="2" />
                   </div>
                   <div class="field">
-                    <label for="localRetailMult">Retail Multiplier</label>
+                    <label for="localRetailMult">Retail Multiplier (on wholesale)</label>
                     <input type="number" id="localRetailMult" min="0" step="0.1" value="2" />
+                  </div>
+                  <div class="field">
+                    <label for="localCurrencyLabel">Currency Label</label>
+                    <select id="localCurrencyLabel">
+                      <option value="KM" selected>KM</option>
+                      <option value="BAM">BAM</option>
+                    </select>
                   </div>
                   <div class="field">
                     <label for="localPayFee">Payment Fee (%)</label>
                     <input type="number" id="localPayFee" min="0" step="0.1" value="1.5" />
                   </div>
                   <div class="field">
-                    <label for="localShipping">Local Shipping (KM)</label>
+                    <label for="localShipping">Local Shipping (BAM/KM)</label>
                     <input type="number" id="localShipping" min="0" step="0.01" value="6" />
                   </div>
                   <div class="field full">
                     <div class="checkbox-row">
                       <input type="checkbox" id="localVat" checked />
-                      <label for="localVat" style="margin:0">Apply PDV / VAT 17%</label>
+                      <label for="localVat">Apply PDV / VAT 17%</label>
                     </div>
                   </div>
                 </div>
@@ -722,7 +740,7 @@
                     <input type="number" id="intlWholesaleMult" min="0" step="0.1" value="2.2" />
                   </div>
                   <div class="field">
-                    <label for="intlRetailMult">Retail Multiplier</label>
+                    <label for="intlRetailMult">Retail Multiplier (on wholesale)</label>
                     <input type="number" id="intlRetailMult" min="0" step="0.1" value="2.2" />
                   </div>
                   <div class="field">
@@ -734,14 +752,14 @@
                   </div>
                   <div class="field">
                     <label for="fxRate">FX Rate (1 EUR = x USD)</label>
-                    <input type="number" id="fxRate" min="0" step="0.0001" value="1.08" />
+                    <input type="number" id="fxRate" min="0.0001" step="0.0001" value="1.08" />
                   </div>
                   <div class="field">
                     <label for="gatewayFee">Platform / Gateway Fee (%)</label>
                     <input type="number" id="gatewayFee" min="0" step="0.1" value="4.5" />
                   </div>
                   <div class="field">
-                    <label for="listingFee">Listing Fee (%) Etsy 6.5 / Shopify 0</label>
+                    <label for="listingFee">Listing Fee (%) · Etsy 6.5 / Shopify 0</label>
                     <input type="number" id="listingFee" min="0" step="0.1" value="6.5" />
                   </div>
                   <div class="field">
@@ -759,7 +777,7 @@
                 </div>
               </div>
             </div>
-            <p class="save-note">Inputs auto-save to this browser via localStorage. Fixed EUR→BAM rate: 1.95583.</p>
+            <p class="save-note">Inputs auto-save in this browser. Fixed rate: 1 EUR = 1.95583 BAM.</p>
           </div>
         </details>
       </section>
@@ -804,9 +822,9 @@
 
           <div class="price-tags">
             <div class="price-tag local">
-              <div class="tag-label">Suggested BiH Price (KM)</div>
+              <div class="tag-label">Suggested BiH Price</div>
               <div class="tag-value" id="bihPrice">0.00 KM</div>
-              <div class="tag-meta" id="bihMeta">Includes shipping · VAT toggle aware</div>
+              <div class="tag-meta" id="bihMeta">Includes shipping and optional PDV</div>
             </div>
             <div class="price-tag intl">
               <div class="tag-label">Suggested International Price</div>
@@ -818,19 +836,27 @@
           <div class="mini-metrics">
             <div class="mini">
               <div class="m-label">Local wholesale</div>
-              <div class="m-value" id="localWholesale">0.00 KM</div>
+              <div class="m-value" id="localWholesaleOut">0.00 KM</div>
             </div>
             <div class="mini">
               <div class="m-label">Intl wholesale</div>
-              <div class="m-value" id="intlWholesale">€0.00</div>
+              <div class="m-value" id="intlWholesaleOut">€0.00</div>
             </div>
             <div class="mini">
               <div class="m-label">Local net margin</div>
-              <div class="m-value" id="localMargin">0%</div>
+              <div class="m-value" id="localMarginOut">0%</div>
             </div>
             <div class="mini">
               <div class="m-label">Intl net margin</div>
-              <div class="m-value" id="intlMargin">0%</div>
+              <div class="m-value" id="intlMarginOut">0%</div>
+            </div>
+            <div class="mini">
+              <div class="m-label">Adjusted metal</div>
+              <div class="m-value" id="adjMetalOut">0.00 g</div>
+            </div>
+            <div class="mini">
+              <div class="m-label">Labor hours</div>
+              <div class="m-value" id="laborHoursOut">0.00 h</div>
             </div>
           </div>
         </div>
@@ -838,10 +864,8 @@
     </div>
 
     <div class="section-title">
-      <div>
-        <h2>Market Comparison</h2>
-        <p>Exact costs, markups, platform fees, and net profit margins</p>
-      </div>
+      <h2>Market Comparison</h2>
+      <p>Exact costs, markups, platform fees, and net profit margins</p>
     </div>
 
     <section class="table-card" aria-label="Comparison table">
@@ -849,7 +873,7 @@
         <thead>
           <tr>
             <th>Line item</th>
-            <th class="num">Local (BiH / KM)</th>
+            <th class="num">Local (BiH)</th>
             <th class="num">International</th>
           </tr>
         </thead>
@@ -862,10 +886,12 @@
 
   <script>
     (function () {
-      const EUR_TO_BAM = 1.95583;
-      const STORAGE_KEY = "jewelry-cogs-calculator-v1";
+      "use strict";
 
-      const defaults = {
+      var EUR_TO_BAM = 1.95583;
+      var STORAGE_KEY = "jewelry-cogs-calculator-v2";
+
+      var defaults = {
         metalWeight: 8,
         scrapBuffer: 12,
         metalSpot: 62,
@@ -885,6 +911,7 @@
         tools: 2.5,
         localWholesaleMult: 2,
         localRetailMult: 2,
+        localCurrencyLabel: "KM",
         localPayFee: 1.5,
         localShipping: 6,
         localVat: true,
@@ -899,283 +926,294 @@
         forexBuffer: 3
       };
 
-      const ids = Object.keys(defaults);
+      var numberIds = [
+        "metalWeight", "scrapBuffer", "metalSpot", "gemstones", "findings", "consumables",
+        "waxPrint", "castingFee", "plating",
+        "hourlyWage", "fabMinutes", "setMinutes", "qcMinutes",
+        "rentShare", "packaging", "softwareMkt", "tools",
+        "localWholesaleMult", "localRetailMult", "localPayFee", "localShipping",
+        "intlWholesaleMult", "intlRetailMult", "fxRate", "gatewayFee", "listingFee",
+        "intlShipping", "customsBuffer", "forexBuffer"
+      ];
 
-      const el = (id) => document.getElementById(id);
+      var selectIds = ["localCurrencyLabel", "intlCurrency"];
+      var checkIds = ["localVat"];
+
+      function el(id) {
+        return document.getElementById(id);
+      }
+
+      function toNumber(value) {
+        var n = parseFloat(value);
+        return isFinite(n) ? n : 0;
+      }
 
       function num(id) {
-        const value = parseFloat(el(id).value);
-        return Number.isFinite(value) ? value : 0;
+        return toNumber(el(id).value);
       }
 
       function money(value, currency) {
-        const abs = Math.abs(value);
-        const formatted = abs.toLocaleString(undefined, {
+        var abs = Math.abs(value);
+        var formatted = abs.toLocaleString(undefined, {
           minimumFractionDigits: 2,
           maximumFractionDigits: 2
         });
-        const sign = value < 0 ? "-" : "";
-        if (currency === "BAM") return sign + formatted + " KM";
+        var sign = value < 0 ? "-" : "";
+        if (currency === "BAM" || currency === "KM") return sign + formatted + " " + currency;
         if (currency === "USD") return sign + "$" + formatted;
         return sign + "€" + formatted;
       }
 
-      function pct(value) {
-        return (value * 100).toLocaleString(undefined, {
+      function pctText(ratio) {
+        return (ratio * 100).toLocaleString(undefined, {
           minimumFractionDigits: 1,
           maximumFractionDigits: 1
         }) + "%";
       }
 
       function readState() {
-        const state = {};
-        ids.forEach((id) => {
-          if (id === "localVat") {
-            state[id] = el(id).checked;
-          } else if (id === "intlCurrency") {
-            state[id] = el(id).value;
-          } else {
-            state[id] = num(id);
-          }
-        });
+        var state = {};
+        var i;
+        for (i = 0; i < numberIds.length; i++) {
+          state[numberIds[i]] = num(numberIds[i]);
+        }
+        for (i = 0; i < selectIds.length; i++) {
+          state[selectIds[i]] = el(selectIds[i]).value;
+        }
+        for (i = 0; i < checkIds.length; i++) {
+          state[checkIds[i]] = el(checkIds[i]).checked;
+        }
         return state;
       }
 
       function writeState(state) {
-        ids.forEach((id) => {
-          if (id === "localVat") {
-            el(id).checked = Boolean(state[id]);
-          } else {
+        var i;
+        var id;
+        for (i = 0; i < numberIds.length; i++) {
+          id = numberIds[i];
+          if (Object.prototype.hasOwnProperty.call(state, id)) {
             el(id).value = state[id];
           }
-        });
+        }
+        for (i = 0; i < selectIds.length; i++) {
+          id = selectIds[i];
+          if (Object.prototype.hasOwnProperty.call(state, id)) {
+            el(id).value = state[id];
+          }
+        }
+        for (i = 0; i < checkIds.length; i++) {
+          id = checkIds[i];
+          if (Object.prototype.hasOwnProperty.call(state, id)) {
+            el(id).checked = Boolean(state[id]);
+          }
+        }
       }
 
       function saveState() {
         try {
           localStorage.setItem(STORAGE_KEY, JSON.stringify(readState()));
         } catch (err) {
-          // Ignore quota / private mode failures
+          // ignore storage failures
         }
       }
 
       function loadState() {
         try {
-          const raw = localStorage.getItem(STORAGE_KEY);
-          if (!raw) return false;
-          const parsed = JSON.parse(raw);
-          writeState({ ...defaults, ...parsed });
-          return true;
+          var raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) {
+            writeState(defaults);
+            return;
+          }
+          var parsed = JSON.parse(raw);
+          writeState(Object.assign({}, defaults, parsed));
         } catch (err) {
-          return false;
+          writeState(defaults);
         }
       }
 
       function showToast(message) {
-        const toast = el("toast");
+        var toast = el("toast");
         toast.textContent = message;
         toast.classList.add("show");
-        clearTimeout(showToast._t);
-        showToast._t = setTimeout(() => toast.classList.remove("show"), 1800);
+        clearTimeout(showToast._timer);
+        showToast._timer = setTimeout(function () {
+          toast.classList.remove("show");
+        }, 1800);
       }
 
       function calc(state) {
-        const scrap = state.scrapBuffer / 100;
-        const adjustedMetal = state.metalWeight * (1 + scrap);
-        const totalMetalCost = adjustedMetal * state.metalSpot;
-        const materials =
-          totalMetalCost +
-          state.gemstones +
-          state.findings +
-          state.consumables;
+        var scrap = state.scrapBuffer / 100;
+        var adjustedMetal = state.metalWeight * (1 + scrap);
+        var totalMetalCost = adjustedMetal * state.metalSpot;
 
-        const casting =
-          state.waxPrint + state.castingFee + state.plating;
+        var materials = totalMetalCost + state.gemstones + state.findings + state.consumables;
+        var casting = state.waxPrint + state.castingFee + state.plating;
 
-        const totalMinutes =
-          state.fabMinutes + state.setMinutes + state.qcMinutes;
-        const laborHours = totalMinutes / 60;
-        const labor = laborHours * state.hourlyWage;
+        var totalMinutes = state.fabMinutes + state.setMinutes + state.qcMinutes;
+        var laborHours = totalMinutes / 60;
+        var labor = laborHours * state.hourlyWage;
 
-        const overhead =
-          state.rentShare +
-          state.packaging +
-          state.softwareMkt +
-          state.tools;
+        var overhead = state.rentShare + state.packaging + state.softwareMkt + state.tools;
+        var cogs = materials + casting + labor + overhead;
 
-        const cogs = materials + casting + labor + overhead;
+        // Local market (BiH)
+        var localWholesaleEur = cogs * state.localWholesaleMult;
+        var localBaseRetailEur = localWholesaleEur * state.localRetailMult;
+        var localBaseRetailBam = localBaseRetailEur * EUR_TO_BAM;
+        var localPayRate = state.localPayFee / 100;
+        var localVatRate = state.localVat ? 0.17 : 0;
+        var localFinalBam =
+          localBaseRetailBam * (1 + localPayRate) * (1 + localVatRate) + state.localShipping;
 
-        // Local market
-        const localWholesaleEur = cogs * state.localWholesaleMult;
-        const localRetailEur = localWholesaleEur * state.localRetailMult;
-        const localRetailBam = localRetailEur * EUR_TO_BAM;
-        const localPay = state.localPayFee / 100;
-        const localVatRate = state.localVat ? 0.17 : 0;
-        const localFinalBam =
-          localRetailBam * (1 + localPay) * (1 + localVatRate) +
-          state.localShipping;
+        // Expand: base * (1+pay) * (1+vat) = base + base*pay + base*vat + base*pay*vat
+        var localPayAmountBam = localBaseRetailBam * localPayRate * (1 + localVatRate);
+        var localVatAmountBam = localBaseRetailBam * (1 + localPayRate) * localVatRate;
+        var cogsBam = cogs * EUR_TO_BAM;
+        var localNetProfitBam =
+          localFinalBam - cogsBam - state.localShipping - localPayAmountBam - localVatAmountBam;
+        var localMargin = localFinalBam > 0 ? localNetProfitBam / localFinalBam : 0;
+        var localLabel = state.localCurrencyLabel === "BAM" ? "BAM" : "KM";
 
-        // Approximate net to artisan after payment fee and before considering shipping as pure pass-through
-        // Shipping is charged to customer and also a cost, so contribution uses product portion.
-        const localProductPortionBam =
-          localRetailBam * (1 + localPay) * (1 + localVatRate);
-        const localFeesBam = localProductPortionBam - localRetailBam * (1 + localVatRate);
-        // Net revenue after VAT remittance and payment fee, excluding shipping cashflow
-        const localNetRevenueBam =
-          (localRetailBam * (1 + localPay) * (1 + localVatRate)) /
-            (1 + localVatRate) -
-          localRetailBam * localPay;
-        // Simpler practical margin: final price minus COGS(BAM) minus shipping minus estimated VAT and fees
-        const cogsBam = cogs * EUR_TO_BAM;
-        const vatAmountBam = state.localVat
-          ? localRetailBam * (1 + localPay) * localVatRate
-          : 0;
-        const payFeeAmountBam = localRetailBam * (1 + localVatRate) * localPay;
-        // Fee applied on taxed base in formula: Base * (1+pay) * (1+tax)
-        // Expand: base + base*pay + base*tax + base*pay*tax
-        const localPayAmount = localRetailBam * localPay * (1 + localVatRate);
-        const localVatAmount = localRetailBam * (1 + localPay) * localVatRate;
-        const localNetProfitBam =
-          localFinalBam -
-          cogsBam -
-          state.localShipping -
-          localPayAmount -
-          localVatAmount;
-        const localMargin =
-          localFinalBam > 0 ? localNetProfitBam / localFinalBam : 0;
+        // International market
+        var intlWholesaleEur = cogs * state.intlWholesaleMult;
+        var intlBaseRetailEur = intlWholesaleEur * state.intlRetailMult;
+        var gatewayRate = state.gatewayFee / 100;
+        var listingRate = state.listingFee / 100;
+        var customsRate = state.customsBuffer / 100;
+        var forexRate = state.forexBuffer / 100;
+        var feeStack = gatewayRate + listingRate + customsRate + forexRate;
+        var intlFinalEur = intlBaseRetailEur * (1 + feeStack) + state.intlShipping;
 
-        // International
-        const intlWholesaleEur = cogs * state.intlWholesaleMult;
-        const intlRetailEur = intlWholesaleEur * state.intlRetailMult;
-        const feeStack =
-          state.gatewayFee / 100 +
-          state.listingFee / 100 +
-          state.customsBuffer / 100 +
-          state.forexBuffer / 100;
-        const intlFinalEur =
-          intlRetailEur * (1 + feeStack) + state.intlShipping;
+        var fx = state.fxRate > 0 ? state.fxRate : 1;
+        var intlIsUsd = state.intlCurrency === "USD";
+        var intlCurrency = intlIsUsd ? "USD" : "EUR";
+        var toDisplay = function (eurValue) {
+          return intlIsUsd ? eurValue * fx : eurValue;
+        };
 
-        const fx = state.fxRate > 0 ? state.fxRate : 1;
-        const intlIsUsd = state.intlCurrency === "USD";
-        const intlFinalDisplay = intlIsUsd ? intlFinalEur * fx : intlFinalEur;
-        const intlWholesaleDisplay = intlIsUsd
-          ? intlWholesaleEur * fx
-          : intlWholesaleEur;
-        const intlCurrencyCode = intlIsUsd ? "USD" : "EUR";
+        var feeAmountEur = intlBaseRetailEur * feeStack;
+        var intlNetProfitEur = intlFinalEur - cogs - state.intlShipping - feeAmountEur;
+        var intlMargin = intlFinalEur > 0 ? intlNetProfitEur / intlFinalEur : 0;
 
-        const feeAmountEur = intlRetailEur * feeStack;
-        const intlNetProfitEur =
-          intlFinalEur - cogs - state.intlShipping - feeAmountEur;
-        const intlMargin =
-          intlFinalEur > 0 ? intlNetProfitEur / intlFinalEur : 0;
-
-        const safe = (part) => (cogs > 0 ? part / cogs : 0);
+        var share = function (part) {
+          return cogs > 0 ? part / cogs : 0;
+        };
 
         return {
-          adjustedMetal,
-          totalMetalCost,
-          materials,
-          casting,
-          laborHours,
-          labor,
-          overhead,
-          cogs,
+          adjustedMetal: adjustedMetal,
+          totalMetalCost: totalMetalCost,
+          materials: materials,
+          casting: casting,
+          laborHours: laborHours,
+          labor: labor,
+          overhead: overhead,
+          cogs: cogs,
           shares: {
-            materials: safe(materials),
-            casting: safe(casting),
-            labor: safe(labor),
-            overhead: safe(overhead)
+            materials: share(materials),
+            casting: share(casting),
+            labor: share(labor),
+            overhead: share(overhead)
           },
           local: {
+            label: localLabel,
             wholesaleEur: localWholesaleEur,
-            retailEur: localRetailEur,
+            baseRetailEur: localBaseRetailEur,
             wholesaleBam: localWholesaleEur * EUR_TO_BAM,
-            retailBam: localRetailBam,
+            baseRetailBam: localBaseRetailBam,
             finalBam: localFinalBam,
-            payAmount: localPayAmount,
-            vatAmount: localVatAmount,
-            shipping: state.localShipping,
-            cogsBam,
+            payAmountBam: localPayAmountBam,
+            vatAmountBam: localVatAmountBam,
+            shippingBam: state.localShipping,
+            cogsBam: cogsBam,
             netProfitBam: localNetProfitBam,
             margin: localMargin,
-            vatOn: state.localVat
+            vatOn: state.localVat,
+            payFeePct: state.localPayFee
           },
           intl: {
+            currency: intlCurrency,
             wholesaleEur: intlWholesaleEur,
-            retailEur: intlRetailEur,
+            baseRetailEur: intlBaseRetailEur,
             finalEur: intlFinalEur,
-            finalDisplay: intlFinalDisplay,
-            wholesaleDisplay: intlWholesaleDisplay,
-            currency: intlCurrencyCode,
-            feeStack,
-            feeAmountEur,
-            shipping: state.intlShipping,
+            finalDisplay: toDisplay(intlFinalEur),
+            wholesaleDisplay: toDisplay(intlWholesaleEur),
+            baseRetailDisplay: toDisplay(intlBaseRetailEur),
+            feeAmountDisplay: toDisplay(feeAmountEur),
+            shippingDisplay: toDisplay(state.intlShipping),
+            cogsDisplay: toDisplay(cogs),
+            netProfitDisplay: toDisplay(intlNetProfitEur),
+            feeStack: feeStack,
+            shippingEur: state.intlShipping,
             netProfitEur: intlNetProfitEur,
-            netProfitDisplay: intlIsUsd
-              ? intlNetProfitEur * fx
-              : intlNetProfitEur,
             margin: intlMargin,
             gateway: state.gatewayFee,
             listing: state.listingFee,
             customs: state.customsBuffer,
-            forex: state.forexBuffer
+            forex: state.forexBuffer,
+            fx: fx
           }
         };
       }
 
-      function setBar(id, pctValue) {
-        const width = Math.max(0, Math.min(100, pctValue * 100));
+      function setBar(id, ratio) {
+        var width = Math.max(0, Math.min(100, ratio * 100));
         el(id).style.width = width.toFixed(1) + "%";
       }
 
       function renderComparison(result) {
-        const local = result.local;
-        const intl = result.intl;
-        const cur = intl.currency;
-
-        const rows = [
-          ["Total Base COGS", money(local.cogsBam, "BAM"), money(result.cogs, "EUR") + (cur === "USD" ? " / " + money(result.cogs * num("fxRate"), "USD") : "")],
-          ["Wholesale multiplier price", money(local.wholesaleBam, "BAM"), money(intl.wholesaleDisplay, cur)],
-          ["Base retail (before market fees)", money(local.retailBam, "BAM"), money(cur === "USD" ? intl.retailEur * num("fxRate") : intl.retailEur, cur)],
-          ["Payment / gateway & platform fees", money(local.payAmount, "BAM"), money(cur === "USD" ? intl.feeAmountEur * num("fxRate") : intl.feeAmountEur, cur)],
-          ["VAT / PDV", local.vatOn ? money(local.vatAmount, "BAM") : "0.00 KM (off)", "n/a (destination dependent)"],
-          ["Shipping allowance / fee", money(local.shipping, "BAM"), money(cur === "USD" ? intl.shipping * num("fxRate") : intl.shipping, cur)],
-          ["Final suggested retail", money(local.finalBam, "BAM"), money(intl.finalDisplay, cur)],
-          ["Estimated net profit", money(local.netProfitBam, "BAM"), money(intl.netProfitDisplay, cur)],
-          ["Estimated net margin", pct(local.margin), pct(intl.margin)],
-          ["Fee stack notes", "Pay " + num("localPayFee").toFixed(1) + "%" + (local.vatOn ? " + PDV 17%" : " · no VAT"),
-            "Gateway " + intl.gateway.toFixed(1) + "% · Listing " + intl.listing.toFixed(1) + "% · Customs " + intl.customs.toFixed(1) + "% · FX " + intl.forex.toFixed(1) + "%"]
+        var local = result.local;
+        var intl = result.intl;
+        var rows = [
+          ["Total Base COGS", money(local.cogsBam, local.label), money(intl.cogsDisplay, intl.currency)],
+          ["Wholesale price", money(local.wholesaleBam, local.label), money(intl.wholesaleDisplay, intl.currency)],
+          ["Base retail (before market fees)", money(local.baseRetailBam, local.label), money(intl.baseRetailDisplay, intl.currency)],
+          ["Payment / platform fee amounts", money(local.payAmountBam, local.label), money(intl.feeAmountDisplay, intl.currency)],
+          ["VAT / PDV", local.vatOn ? money(local.vatAmountBam, local.label) + " (17%)" : "Off", "n/a"],
+          ["Shipping", money(local.shippingBam, local.label), money(intl.shippingDisplay, intl.currency)],
+          ["Final suggested retail", money(local.finalBam, local.label), money(intl.finalDisplay, intl.currency)],
+          ["Estimated net profit", money(local.netProfitBam, local.label), money(intl.netProfitDisplay, intl.currency)],
+          ["Estimated net margin", pctText(local.margin), pctText(intl.margin)],
+          [
+            "Fee notes",
+            "Pay " + local.payFeePct.toFixed(1) + "%" + (local.vatOn ? " + PDV 17%" : " · no PDV"),
+            "Gateway " + intl.gateway.toFixed(1) + "% · Listing " + intl.listing.toFixed(1) +
+              "% · Customs " + intl.customs.toFixed(1) + "% · FX " + intl.forex.toFixed(1) + "%"
+          ]
         ];
 
-        el("comparisonBody").innerHTML = rows
-          .map((row, index) => {
-            const strong = index === 6 || index === 7 || index === 8;
-            return (
-              "<tr>" +
-              "<td class=\"" + (strong ? "emphasis" : "") + "\">" + row[0] + "</td>" +
-              "<td class=\"num " + (strong ? "emphasis" : "") + "\">" + row[1] + "</td>" +
-              "<td class=\"num " + (strong ? "emphasis" : "") + "\">" + row[2] + "</td>" +
-              "</tr>"
-            );
-          })
-          .join("");
+        var html = "";
+        var i;
+        for (i = 0; i < rows.length; i++) {
+          var strong = i === 6;
+          var profit = i === 7 || i === 8;
+          var cls = strong ? "emphasis" : profit ? "profit" : "";
+          html += "<tr>";
+          html += "<td class=\"" + cls + "\">" + rows[i][0] + "</td>";
+          html += "<td class=\"num " + cls + "\">" + rows[i][1] + "</td>";
+          html += "<td class=\"num " + cls + "\">" + rows[i][2] + "</td>";
+          html += "</tr>";
+        }
+        el("comparisonBody").innerHTML = html;
       }
 
       function render() {
-        const state = readState();
-        const result = calc(state);
+        var state = readState();
+        var result = calc(state);
+
+        el("metaMaterials").textContent = money(result.materials, "EUR");
+        el("metaCasting").textContent = money(result.casting, "EUR");
+        el("metaLabor").textContent = money(result.labor, "EUR");
+        el("metaOverhead").textContent = money(result.overhead, "EUR");
 
         el("materialsSubtotalLabel").textContent = money(result.materials, "EUR");
         el("castingSubtotalLabel").textContent = money(result.casting, "EUR");
         el("laborSubtotalLabel").textContent = money(result.labor, "EUR");
         el("overheadSubtotalLabel").textContent = money(result.overhead, "EUR");
+
         el("metalHint").textContent =
-          "Adjusted metal weight: " +
-          result.adjustedMetal.toFixed(3) +
-          " g · Metal cost: " +
-          money(result.totalMetalCost, "EUR");
-        el("laborHint").textContent =
-          "Total labor: " + result.laborHours.toFixed(2) + " h";
+          "Adjusted metal weight: " + result.adjustedMetal.toFixed(3) +
+          " g · Metal cost: " + money(result.totalMetalCost, "EUR");
+        el("laborHint").textContent = "Total labor: " + result.laborHours.toFixed(2) + " h";
 
         el("totalCogs").textContent = money(result.cogs, "EUR");
 
@@ -1189,8 +1227,66 @@
         el("pctLabor").textContent = Math.round(result.shares.labor * 100) + "%";
         el("pctOverhead").textContent = Math.round(result.shares.overhead * 100) + "%";
 
-        el("bihPrice").textContent = money(result.local.finalBam, "BAM");
-        el("bihMeta").textContent =
-          (result.local.vatOn ? "PDV 17% on · " : "PDV off · ") +
-          "Pay fee " +
-          state.localPayFee
+        el("bihPrice").textContent = money(result.local.finalBam, result.local.label);
+        el("bihMeta").textContent = result.local.vatOn
+          ? "Includes payment fee, 17% PDV, and shipping"
+          : "Includes payment fee and shipping (PDV off)";
+
+        el("intlPrice").textContent = money(result.intl.finalDisplay, result.intl.currency);
+        el("intlMeta").textContent =
+          "Fee stack " + (result.intl.feeStack * 100).toFixed(1) +
+          "% + shipping " + money(result.intl.shippingEur, "EUR");
+
+        el("localWholesaleOut").textContent = money(result.local.wholesaleBam, result.local.label);
+        el("intlWholesaleOut").textContent = money(result.intl.wholesaleDisplay, result.intl.currency);
+        el("localMarginOut").textContent = pctText(result.local.margin);
+        el("intlMarginOut").textContent = pctText(result.intl.margin);
+        el("adjMetalOut").textContent = result.adjustedMetal.toFixed(2) + " g";
+        el("laborHoursOut").textContent = result.laborHours.toFixed(2) + " h";
+
+        renderComparison(result);
+        saveState();
+      }
+
+      function bindEvents() {
+        var i;
+        var node;
+
+        for (i = 0; i < numberIds.length; i++) {
+          node = el(numberIds[i]);
+          node.addEventListener("input", render);
+          node.addEventListener("change", render);
+        }
+
+        for (i = 0; i < selectIds.length; i++) {
+          node = el(selectIds[i]);
+          node.addEventListener("input", render);
+          node.addEventListener("change", render);
+        }
+
+        for (i = 0; i < checkIds.length; i++) {
+          node = el(checkIds[i]);
+          node.addEventListener("change", render);
+        }
+
+        el("resetBtn").addEventListener("click", function () {
+          if (window.confirm("Reset all inputs to default values?")) {
+            writeState(defaults);
+            render();
+            showToast("Defaults restored");
+          }
+        });
+
+        el("printBtn").addEventListener("click", function () {
+          el("printTimestamp").textContent = "Generated: " + new Date().toLocaleString();
+          window.print();
+        });
+      }
+
+      loadState();
+      bindEvents();
+      render();
+    })();
+  </script>
+</body>
+</html>
