@@ -1,1292 +1,352 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Jewelry Cost & Retail Pricing Calculator</title>
-  <style>
-    :root {
-      --bg: #f4f1ec;
-      --surface: #ffffff;
-      --ink: #1c1917;
-      --muted: #78716c;
-      --line: #e7e5e4;
-      --accent: #0f766e;
-      --accent-dark: #115e59;
-      --gold: #b45309;
-      --shadow: 0 10px 30px rgba(28, 25, 23, 0.08);
-      --radius: 16px;
-      --font: "Segoe UI", system-ui, -apple-system, sans-serif;
-    }
-
-    * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
-    body {
-      margin: 0;
-      font-family: var(--font);
-      color: var(--ink);
-      background:
-        radial-gradient(circle at top left, #fde68a33, transparent 28%),
-        radial-gradient(circle at top right, #99f6e433, transparent 24%),
-        var(--bg);
-      min-height: 100vh;
-    }
-
-    .app {
-      max-width: 1280px;
-      margin: 0 auto;
-      padding: 20px 16px 48px;
-    }
-
-    header.app-header {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 16px;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 20px;
-    }
-
-    .brand {
-      display: flex;
-      gap: 14px;
-      align-items: center;
-    }
-
-    .brand-mark {
-      width: 48px;
-      height: 48px;
-      border-radius: 14px;
-      background: linear-gradient(135deg, #0f766e, #134e4a);
-      color: white;
-      display: grid;
-      place-items: center;
-      font-weight: 700;
-      letter-spacing: 0.04em;
-      box-shadow: var(--shadow);
-    }
-
-    h1 {
-      margin: 0;
-      font-size: clamp(1.35rem, 2.5vw, 1.85rem);
-      line-height: 1.15;
-    }
-
-    .subtitle {
-      margin: 4px 0 0;
-      color: var(--muted);
-      font-size: 0.95rem;
-    }
-
-    .header-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-
-    button {
-      appearance: none;
-      border: none;
-      border-radius: 12px;
-      padding: 11px 16px;
-      font: inherit;
-      font-weight: 600;
-      cursor: pointer;
-      transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
-    }
-
-    button:active { transform: translateY(1px); }
-
-    .btn-primary {
-      background: var(--accent);
-      color: white;
-      box-shadow: 0 8px 18px rgba(15, 118, 110, 0.25);
-    }
-
-    .btn-primary:hover { background: var(--accent-dark); }
-
-    .btn-secondary {
-      background: white;
-      color: var(--ink);
-      border: 1px solid var(--line);
-    }
-
-    .btn-secondary:hover { background: #fafaf9; }
-
-    .layout {
-      display: grid;
-      grid-template-columns: 1.35fr 0.9fr;
-      gap: 18px;
-      align-items: start;
-    }
-
-    .panel, .summary-card, .table-card {
-      background: var(--surface);
-      border: 1px solid rgba(231, 229, 228, 0.9);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-    }
-
-    .panel { padding: 8px; }
-
-    details.accordion {
-      border-bottom: 1px solid var(--line);
-    }
-
-    details.accordion:last-child { border-bottom: none; }
-
-    details.accordion > summary {
-      list-style: none;
-      cursor: pointer;
-      padding: 16px 14px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      font-weight: 700;
-    }
-
-    details.accordion > summary::-webkit-details-marker { display: none; }
-
-    details.accordion > summary .meta {
-      margin-left: auto;
-      margin-right: 8px;
-      color: var(--accent);
-      font-size: 0.88rem;
-      font-weight: 700;
-    }
-
-    details.accordion > summary::after {
-      content: "+";
-      width: 28px;
-      height: 28px;
-      border-radius: 999px;
-      display: grid;
-      place-items: center;
-      background: #f5f5f4;
-      color: var(--muted);
-      font-size: 1.1rem;
-      flex-shrink: 0;
-    }
-
-    details.accordion[open] > summary::after { content: "–"; }
-
-    .accordion-body {
-      padding: 0 14px 16px;
-      display: grid;
-      gap: 12px;
-    }
-
-    .grid-2 {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-
-    .field {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .field.full { grid-column: 1 / -1; }
-
-    label {
-      font-size: 0.84rem;
-      color: var(--muted);
-      font-weight: 600;
-    }
-
-    input[type="number"],
-    select {
-      width: 100%;
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      padding: 11px 12px;
-      font: inherit;
-      background: #fafaf9;
-      color: var(--ink);
-      outline: none;
-      transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
-    }
-
-    input[type="number"]:focus,
-    select:focus {
-      border-color: #14b8a6;
-      background: white;
-      box-shadow: 0 0 0 4px rgba(20, 184, 166, 0.12);
-    }
-
-    .hint {
-      font-size: 0.78rem;
-      color: #a8a29e;
-    }
-
-    .subtotal-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px 12px;
-      border-radius: 12px;
-      background: #fafaf9;
-      border: 1px dashed var(--line);
-      font-weight: 700;
-      gap: 10px;
-    }
-
-    .subtotal-row span:last-child { color: var(--accent); }
-
-    .checkbox-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 10px 12px;
-      border-radius: 12px;
-      background: #fafaf9;
-      border: 1px solid var(--line);
-    }
-
-    .checkbox-row input {
-      width: 18px;
-      height: 18px;
-      accent-color: var(--accent);
-    }
-
-    .checkbox-row label {
-      margin: 0;
-      color: var(--ink);
-    }
-
-    .summary-wrap {
-      position: sticky;
-      top: 16px;
-      display: grid;
-      gap: 14px;
-    }
-
-    .summary-card { padding: 18px; }
-
-    .summary-card h2 {
-      margin: 0 0 4px;
-      font-size: 1.05rem;
-    }
-
-    .summary-kicker {
-      margin: 0 0 14px;
-      color: var(--muted);
-      font-size: 0.88rem;
-    }
-
-    .cogs-hero {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
-      gap: 12px;
-      padding: 16px;
-      border-radius: 14px;
-      background: linear-gradient(135deg, #134e4a, #0f766e);
-      color: white;
-      margin-bottom: 14px;
-    }
-
-    .cogs-hero .label {
-      font-size: 0.85rem;
-      opacity: 0.85;
-      margin-bottom: 4px;
-    }
-
-    .cogs-hero .value {
-      font-size: clamp(1.6rem, 3vw, 2rem);
-      font-weight: 800;
-      letter-spacing: -0.03em;
-    }
-
-    .bars {
-      display: grid;
-      gap: 10px;
-      margin-bottom: 16px;
-    }
-
-    .bar-row {
-      display: grid;
-      grid-template-columns: 92px 1fr 54px;
-      gap: 8px;
-      align-items: center;
-      font-size: 0.82rem;
-    }
-
-    .bar-track {
-      height: 10px;
-      background: #f5f5f4;
-      border-radius: 999px;
-      overflow: hidden;
-    }
-
-    .bar-fill {
-      height: 100%;
-      width: 0%;
-      border-radius: inherit;
-      transition: width 0.25s ease;
-    }
-
-    .bar-fill.materials { background: #0f766e; }
-    .bar-fill.casting { background: #0891b2; }
-    .bar-fill.labor { background: #b45309; }
-    .bar-fill.overhead { background: #9f1239; }
-
-    .price-tags {
-      display: grid;
-      gap: 10px;
-    }
-
-    .price-tag {
-      border-radius: 14px;
-      padding: 14px;
-      border: 1px solid var(--line);
-      background: #fafaf9;
-    }
-
-    .price-tag.local {
-      background: linear-gradient(180deg, #fff7ed, #ffffff);
-      border-color: #fed7aa;
-    }
-
-    .price-tag.intl {
-      background: linear-gradient(180deg, #ecfeff, #ffffff);
-      border-color: #a5f3fc;
-    }
-
-    .price-tag .tag-label {
-      font-size: 0.8rem;
-      font-weight: 700;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-    }
-
-    .price-tag .tag-value {
-      margin-top: 6px;
-      font-size: 1.45rem;
-      font-weight: 800;
-      letter-spacing: -0.03em;
-    }
-
-    .price-tag .tag-meta {
-      margin-top: 4px;
-      font-size: 0.82rem;
-      color: var(--muted);
-    }
-
-    .mini-metrics {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      margin-top: 14px;
-    }
-
-    .mini {
-      padding: 10px;
-      border-radius: 12px;
-      background: #fafaf9;
-      border: 1px solid var(--line);
-    }
-
-    .mini .m-label {
-      font-size: 0.75rem;
-      color: var(--muted);
-      margin-bottom: 4px;
-    }
-
-    .mini .m-value {
-      font-weight: 700;
-      font-size: 0.95rem;
-    }
-
-    .section-title {
-      margin: 26px 0 12px;
-    }
-
-    .section-title h2 {
-      margin: 0;
-      font-size: 1.2rem;
-    }
-
-    .section-title p {
-      margin: 4px 0 0;
-      color: var(--muted);
-      font-size: 0.9rem;
-    }
-
-    .table-card {
-      padding: 8px;
-      overflow: auto;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      min-width: 720px;
-    }
-
-    th, td {
-      padding: 12px 14px;
-      text-align: left;
-      border-bottom: 1px solid var(--line);
-      font-size: 0.92rem;
-    }
-
-    th {
-      font-size: 0.8rem;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      color: var(--muted);
-      background: #fafaf9;
-    }
-
-    tr:last-child td { border-bottom: none; }
-
-    td.num, th.num {
-      text-align: right;
-      font-variant-numeric: tabular-nums;
-    }
-
-    .emphasis { font-weight: 800; }
-    .profit { color: #047857; font-weight: 800; }
-
-    .market-controls {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 14px;
-      margin-top: 4px;
-    }
-
-    .market-box {
-      padding: 14px;
-      border-radius: 14px;
-      border: 1px solid var(--line);
-      background: #fafaf9;
-    }
-
-    .market-box h3 {
-      margin: 0 0 12px;
-      font-size: 0.98rem;
-    }
-
-    .save-note {
-      margin-top: 4px;
-      font-size: 0.8rem;
-      color: var(--muted);
-    }
-
-    .toast {
-      position: fixed;
-      left: 50%;
-      bottom: 20px;
-      transform: translateX(-50%) translateY(20px);
-      background: #1c1917;
-      color: white;
-      padding: 12px 16px;
-      border-radius: 999px;
-      opacity: 0;
-      pointer-events: none;
-      transition: all 0.25s ease;
-      z-index: 50;
-      font-size: 0.9rem;
-      box-shadow: var(--shadow);
-    }
-
-    .toast.show {
-      opacity: 1;
-      transform: translateX(-50%) translateY(0);
-    }
-
-    @media (max-width: 960px) {
-      .layout { grid-template-columns: 1fr; }
-      .summary-wrap { position: static; }
-      .market-controls { grid-template-columns: 1fr; }
-    }
-
-    @media (max-width: 640px) {
-      .grid-2 { grid-template-columns: 1fr; }
-      .mini-metrics { grid-template-columns: 1fr; }
-      .app { padding: 14px 12px 36px; }
-      .header-actions { width: 100%; }
-      .header-actions button { flex: 1 1 auto; }
-    }
-
-    @media print {
-      body { background: white; }
-      .app-header .header-actions,
-      .save-note,
-      .toast { display: none !important; }
-      .app { max-width: none; padding: 0; }
-      .layout { display: block; }
-      .summary-wrap { position: static; margin-top: 16px; }
-      .panel, .summary-card, .table-card {
-        box-shadow: none;
-        border: 1px solid #ddd;
-        break-inside: avoid;
-      }
-      details.accordion > summary::after { display: none; }
-      input, select {
-        border: none !important;
-        background: transparent !important;
-        box-shadow: none !important;
-        padding-left: 0;
-      }
-      .print-only-title { display: block !important; margin-bottom: 8px; }
-    }
-
-    .print-only-title { display: none; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>doba.objects — COGS & Margin Calculator</title>
+<style>
+  :root {
+    --ink: #1c1613;
+    --paper: #f3efe9;
+    --silver: #b8b8b4;
+    --accent: #c79c7c;
+    --line: #d8d2c8;
+    --good: #3a6b4c;
+    --warn: #a8452f;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: Helvetica, Arial, sans-serif;
+    line-height: 1.4;
+  }
+  .app {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 1.25rem 1rem 3rem;
+  }
+  header h1 {
+    font-size: 1.3rem;
+    margin: 0 0 0.2rem;
+    letter-spacing: 0.02em;
+  }
+  header p {
+    margin: 0 0 1.5rem;
+    font-size: 0.85rem;
+    color: #555;
+  }
+  fieldset {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    margin: 0 0 1.25rem;
+    padding: 0.9rem 1rem 1.1rem;
+  }
+  legend {
+    font-weight: 700;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 0 0.3rem;
+  }
+  .field {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin: 0.55rem 0;
+  }
+  .field label {
+    font-size: 0.85rem;
+    flex: 1 1 auto;
+  }
+  .field .hint {
+    display: block;
+    font-size: 0.72rem;
+    color: #777;
+    font-weight: 400;
+  }
+  .field input[type="number"],
+  .field select {
+    width: 7.5rem;
+    padding: 0.4rem 0.5rem;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    font-size: 0.9rem;
+    background: #fff;
+    color: var(--ink);
+  }
+  .field select { width: auto; min-width: 9rem; }
+  .toggle-group {
+    display: none;
+  }
+  .toggle-group.active {
+    display: block;
+  }
+  .results {
+    background: var(--ink);
+    color: var(--paper);
+    border-radius: 8px;
+    padding: 1rem 1.1rem 1.2rem;
+  }
+  .results h2 {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin: 0 0 0.7rem;
+    color: var(--silver);
+  }
+  .row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.88rem;
+    padding: 0.28rem 0;
+    border-bottom: 1px solid rgba(255,255,255,0.12);
+  }
+  .row.total {
+    border-bottom: none;
+    border-top: 1px solid rgba(255,255,255,0.3);
+    margin-top: 0.3rem;
+    padding-top: 0.5rem;
+    font-weight: 700;
+    font-size: 1rem;
+  }
+  .row.retail {
+    font-weight: 700;
+    color: var(--accent);
+    font-size: 1.05rem;
+  }
+  .flag {
+    margin-top: 0.8rem;
+    padding: 0.55rem 0.7rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    background: rgba(255,255,255,0.08);
+  }
+  .flag[data-state="good"] { color: #a9d6b8; }
+  .flag[data-state="warn"] { color: #e8b39f; }
+  .note {
+    font-size: 0.72rem;
+    color: #888;
+    margin-top: 0.3rem;
+  }
+</style>
 </head>
 <body>
-  <div class="app">
-    <header class="app-header">
-      <div class="brand">
-        <div class="brand-mark">JC</div>
-        <div>
-          <h1>Jewelry Cost & Retail Pricing Calculator</h1>
-          <p class="subtitle">COGS engine + BiH local vs international retail matrix</p>
-        </div>
+<div class="app">
+  <header>
+    <h1>doba.objects</h1>
+    <p>COGS &amp; retail margin calculator. Adjust any field, results update live.</p>
+  </header>
+
+  <form id="calcForm">
+    <fieldset>
+      <legend>Global rates</legend>
+      <div class="field">
+        <label for="hourlyRate">Labor rate (EUR / hour)<span class="hint">Suggested default, replace with your real rate</span></label>
+        <input type="number" id="hourlyRate" value="15" min="0" step="0.5">
       </div>
-      <div class="header-actions">
-        <button type="button" class="btn-secondary" id="resetBtn">Reset to Defaults</button>
-        <button type="button" class="btn-primary" id="printBtn">Export PDF / Print Sheet</button>
+      <div class="field">
+        <label for="silverPrice">Silver price (EUR / gram)</label>
+        <input type="number" id="silverPrice" value="2.2" min="0" step="0.1">
       </div>
-    </header>
+      <div class="field">
+        <label for="overheadPct">Overhead (%)<span class="hint">Packaging, tools, misc — suggested default</span></label>
+        <input type="number" id="overheadPct" value="15" min="0" step="1">
+      </div>
+      <div class="field">
+        <label for="marginPct">Target margin (% of retail price)<span class="hint">Suggested default</span></label>
+        <input type="number" id="marginPct" value="50" min="0" max="95" step="1">
+      </div>
+      <div class="field">
+        <label for="eurBam">EUR → KM conversion</label>
+        <input type="number" id="eurBam" value="1.95583" min="0" step="0.00001">
+      </div>
+    </fieldset>
 
-    <div class="print-only-title">
-      <strong>Product Cost Card</strong>
-      <div id="printTimestamp"></div>
-    </div>
+    <fieldset>
+      <legend>Piece details</legend>
+      <div class="field">
+        <label for="collection">Collection</label>
+        <select id="collection">
+          <option value="base">Base Collection</option>
+          <option value="limited">Ebony Wood &amp; Silver (Limited)</option>
+          <option value="bold">Bold Statement</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="material">Material</label>
+        <select id="material">
+          <option value="silver">Silver only</option>
+          <option value="wood">Wood only</option>
+          <option value="combo">Wood + Silver combo</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="hours">Production time (hours)<span class="hint">Auto filled by collection, editable</span></label>
+        <input type="number" id="hours" value="1.5" min="0" step="0.1">
+      </div>
+      <div class="field toggle-group" id="silverGroup">
+        <label for="silverGrams">Silver used (grams)</label>
+        <input type="number" id="silverGrams" value="5" min="0" step="0.1">
+      </div>
+      <div class="field toggle-group" id="woodGroup">
+        <label for="woodCost">Wood cost per piece (EUR)<span class="hint">Your range: 1–2 EUR</span></label>
+        <input type="number" id="woodCost" value="1.5" min="0" step="0.1">
+      </div>
+    </fieldset>
 
-    <div class="layout">
-      <section class="panel" aria-label="Cost inputs">
-        <details class="accordion" open>
-          <summary>
-            A. Raw Materials
-            <span class="meta" id="metaMaterials">€0.00</span>
-          </summary>
-          <div class="accordion-body">
-            <div class="grid-2">
-              <div class="field">
-                <label for="metalWeight">Metal Weight (g)</label>
-                <input type="number" id="metalWeight" min="0" step="0.01" value="8" />
-              </div>
-              <div class="field">
-                <label for="scrapBuffer">Scrap / Waste Buffer (%)</label>
-                <input type="number" id="scrapBuffer" min="0" step="0.1" value="12" />
-              </div>
-              <div class="field">
-                <label for="metalSpot">Metal Spot Price (€/g)</label>
-                <input type="number" id="metalSpot" min="0" step="0.01" value="62" />
-              </div>
-              <div class="field">
-                <label for="gemstones">Gemstones & Pearls (€)</label>
-                <input type="number" id="gemstones" min="0" step="0.01" value="45" />
-              </div>
-              <div class="field">
-                <label for="findings">Findings & Chains (€)</label>
-                <input type="number" id="findings" min="0" step="0.01" value="12" />
-              </div>
-              <div class="field">
-                <label for="consumables">Workshop Consumables / piece (€)</label>
-                <input type="number" id="consumables" min="0" step="0.01" value="1.5" />
-              </div>
-            </div>
-            <div class="subtotal-row">
-              <span>Materials subtotal</span>
-              <span id="materialsSubtotalLabel">€0.00</span>
-            </div>
-            <div class="hint" id="metalHint">Adjusted metal weight: 0 g</div>
-          </div>
-        </details>
+    <fieldset>
+      <legend>Reference check (optional)</legend>
+      <div class="field">
+        <label for="refMin">Reference min price (KM)</label>
+        <input type="number" id="refMin" value="200" min="0" step="1">
+      </div>
+      <div class="field">
+        <label for="refMax">Reference max price (KM)</label>
+        <input type="number" id="refMax" value="300" min="0" step="1">
+      </div>
+      <p class="note">Defaults to your confirmed one-of-one wood ring anchor. Change or clear for other products.</p>
+    </fieldset>
+  </form>
 
-        <details class="accordion" open>
-          <summary>
-            B. Casting & External Services
-            <span class="meta" id="metaCasting">€0.00</span>
-          </summary>
-          <div class="accordion-body">
-            <div class="grid-2">
-              <div class="field">
-                <label for="waxPrint">Wax / 3D Print Cost (€)</label>
-                <input type="number" id="waxPrint" min="0" step="0.01" value="8" />
-              </div>
-              <div class="field">
-                <label for="castingFee">Casting Fee (€)</label>
-                <input type="number" id="castingFee" min="0" step="0.01" value="18" />
-              </div>
-              <div class="field full">
-                <label for="plating">Plating & Hallmarking Fees (€)</label>
-                <input type="number" id="plating" min="0" step="0.01" value="10" />
-              </div>
-            </div>
-            <div class="subtotal-row">
-              <span>Casting / services subtotal</span>
-              <span id="castingSubtotalLabel">€0.00</span>
-            </div>
-          </div>
-        </details>
+  <section class="results" aria-live="polite">
+    <h2>Live breakdown</h2>
+    <div class="row"><span>Labor cost</span><span id="outLabor">—</span></div>
+    <div class="row"><span>Material cost</span><span id="outMaterial">—</span></div>
+    <div class="row"><span>Overhead</span><span id="outOverhead">—</span></div>
+    <div class="row total"><span>Total COGS</span><span id="outCogs">—</span></div>
+    <div class="row retail"><span>Suggested retail price</span><span id="outRetail">—</span></div>
+    <div class="row"><span>Profit per piece</span><span id="outProfit">—</span></div>
+    <div class="flag" id="outFlag" data-state="good">—</div>
+  </section>
+</div>
 
-        <details class="accordion" open>
-          <summary>
-            C. Artisan Bench Labor
-            <span class="meta" id="metaLabor">€0.00</span>
-          </summary>
-          <div class="accordion-body">
-            <div class="grid-2">
-              <div class="field">
-                <label for="hourlyWage">Target Hourly Wage (€/hr)</label>
-                <input type="number" id="hourlyWage" min="0" step="0.01" value="30" />
-              </div>
-              <div class="field">
-                <label for="fabMinutes">Fabrication / Carving (min)</label>
-                <input type="number" id="fabMinutes" min="0" step="1" value="90" />
-              </div>
-              <div class="field">
-                <label for="setMinutes">Setting & Polishing (min)</label>
-                <input type="number" id="setMinutes" min="0" step="1" value="45" />
-              </div>
-              <div class="field">
-                <label for="qcMinutes">QC & Packing (min)</label>
-                <input type="number" id="qcMinutes" min="0" step="1" value="15" />
-              </div>
-            </div>
-            <div class="subtotal-row">
-              <span>Labor subtotal</span>
-              <span id="laborSubtotalLabel">€0.00</span>
-            </div>
-            <div class="hint" id="laborHint">Total labor: 0.00 h</div>
-          </div>
-        </details>
+<script>
+(function () {
+  'use strict';
 
-        <details class="accordion" open>
-          <summary>
-            D. Overhead Allocation (Per Piece)
-            <span class="meta" id="metaOverhead">€0.00</span>
-          </summary>
-          <div class="accordion-body">
-            <div class="grid-2">
-              <div class="field">
-                <label for="rentShare">Studio Rent & Utilities Share (€)</label>
-                <input type="number" id="rentShare" min="0" step="0.01" value="6" />
-              </div>
-              <div class="field">
-                <label for="packaging">Packaging & Unboxing (€)</label>
-                <input type="number" id="packaging" min="0" step="0.01" value="3.5" />
-              </div>
-              <div class="field">
-                <label for="softwareMkt">Software & Marketing (€)</label>
-                <input type="number" id="softwareMkt" min="0" step="0.01" value="4" />
-              </div>
-              <div class="field">
-                <label for="tools">Tool Depreciation / Repair (€)</label>
-                <input type="number" id="tools" min="0" step="0.01" value="2.5" />
-              </div>
-            </div>
-            <div class="subtotal-row">
-              <span>Overhead subtotal</span>
-              <span id="overheadSubtotalLabel">€0.00</span>
-            </div>
-          </div>
-        </details>
+  var form = document.getElementById('calcForm');
+  var collectionEl = document.getElementById('collection');
+  var materialEl = document.getElementById('material');
+  var hoursEl = document.getElementById('hours');
+  var silverGroup = document.getElementById('silverGroup');
+  var woodGroup = document.getElementById('woodGroup');
 
-        <details class="accordion" open>
-          <summary>E. Market Multipliers & Fees</summary>
-          <div class="accordion-body">
-            <div class="market-controls">
-              <div class="market-box">
-                <h3>Local Market (BiH)</h3>
-                <div class="grid-2">
-                  <div class="field">
-                    <label for="localWholesaleMult">Wholesale Multiplier</label>
-                    <input type="number" id="localWholesaleMult" min="0" step="0.1" value="2" />
-                  </div>
-                  <div class="field">
-                    <label for="localRetailMult">Retail Multiplier (on wholesale)</label>
-                    <input type="number" id="localRetailMult" min="0" step="0.1" value="2" />
-                  </div>
-                  <div class="field">
-                    <label for="localCurrencyLabel">Currency Label</label>
-                    <select id="localCurrencyLabel">
-                      <option value="KM" selected>KM</option>
-                      <option value="BAM">BAM</option>
-                    </select>
-                  </div>
-                  <div class="field">
-                    <label for="localPayFee">Payment Fee (%)</label>
-                    <input type="number" id="localPayFee" min="0" step="0.1" value="1.5" />
-                  </div>
-                  <div class="field">
-                    <label for="localShipping">Local Shipping (BAM/KM)</label>
-                    <input type="number" id="localShipping" min="0" step="0.01" value="6" />
-                  </div>
-                  <div class="field full">
-                    <div class="checkbox-row">
-                      <input type="checkbox" id="localVat" checked />
-                      <label for="localVat">Apply PDV / VAT 17%</label>
-                    </div>
-                  </div>
-                </div>
-              </div>
+  var COLLECTION_HOURS = {
+    base: 1.5,
+    limited: 2,
+    bold: 3
+  };
 
-              <div class="market-box">
-                <h3>International Market</h3>
-                <div class="grid-2">
-                  <div class="field">
-                    <label for="intlWholesaleMult">Wholesale Multiplier</label>
-                    <input type="number" id="intlWholesaleMult" min="0" step="0.1" value="2.2" />
-                  </div>
-                  <div class="field">
-                    <label for="intlRetailMult">Retail Multiplier (on wholesale)</label>
-                    <input type="number" id="intlRetailMult" min="0" step="0.1" value="2.2" />
-                  </div>
-                  <div class="field">
-                    <label for="intlCurrency">Currency</label>
-                    <select id="intlCurrency">
-                      <option value="EUR" selected>EUR (€)</option>
-                      <option value="USD">USD ($)</option>
-                    </select>
-                  </div>
-                  <div class="field">
-                    <label for="fxRate">FX Rate (1 EUR = x USD)</label>
-                    <input type="number" id="fxRate" min="0.0001" step="0.0001" value="1.08" />
-                  </div>
-                  <div class="field">
-                    <label for="gatewayFee">Platform / Gateway Fee (%)</label>
-                    <input type="number" id="gatewayFee" min="0" step="0.1" value="4.5" />
-                  </div>
-                  <div class="field">
-                    <label for="listingFee">Listing Fee (%) · Etsy 6.5 / Shopify 0</label>
-                    <input type="number" id="listingFee" min="0" step="0.1" value="6.5" />
-                  </div>
-                  <div class="field">
-                    <label for="intlShipping">Express Shipping Allowance (€)</label>
-                    <input type="number" id="intlShipping" min="0" step="0.01" value="18" />
-                  </div>
-                  <div class="field">
-                    <label for="customsBuffer">Customs / Duty Buffer (%)</label>
-                    <input type="number" id="customsBuffer" min="0" step="0.1" value="2" />
-                  </div>
-                  <div class="field full">
-                    <label for="forexBuffer">Currency Risk & Forex Buffer (%)</label>
-                    <input type="number" id="forexBuffer" min="0" step="0.1" value="3" />
-                  </div>
-                </div>
-              </div>
-            </div>
-            <p class="save-note">Inputs auto-save in this browser. Fixed rate: 1 EUR = 1.95583 BAM.</p>
-          </div>
-        </details>
-      </section>
+  function fmtEUR(n) {
+    return '€' + n.toFixed(2);
+  }
+  function fmtKM(n) {
+    return n.toFixed(2) + ' KM';
+  }
+  function num(id) {
+    var v = parseFloat(document.getElementById(id).value);
+    return isNaN(v) ? 0 : v;
+  }
 
-      <aside class="summary-wrap" aria-label="Live summary">
-        <div class="summary-card">
-          <h2>Live Pricing Summary</h2>
-          <p class="summary-kicker">Updates instantly as you type</p>
+  function updateMaterialVisibility() {
+    var mat = materialEl.value;
+    silverGroup.classList.toggle('active', mat === 'silver' || mat === 'combo');
+    woodGroup.classList.toggle('active', mat === 'wood' || mat === 'combo');
+  }
 
-          <div class="cogs-hero">
-            <div>
-              <div class="label">Total Base COGS</div>
-              <div class="value" id="totalCogs">€0.00</div>
-            </div>
-            <div style="text-align:right; font-size:0.85rem; opacity:0.9">
-              Materials + Casting<br />Labor + Overhead
-            </div>
-          </div>
+  function applyCollectionDefault() {
+    var col = collectionEl.value;
+    if (COLLECTION_HOURS.hasOwnProperty(col)) {
+      hoursEl.value = COLLECTION_HOURS[col];
+    }
+    if (col === 'limited' && materialEl.value === 'silver') {
+      materialEl.value = 'combo';
+      updateMaterialVisibility();
+    }
+  }
 
-          <div class="bars" aria-label="Cost breakdown">
-            <div class="bar-row">
-              <span>Materials</span>
-              <div class="bar-track"><div class="bar-fill materials" id="barMaterials"></div></div>
-              <span id="pctMaterials">0%</span>
-            </div>
-            <div class="bar-row">
-              <span>Casting</span>
-              <div class="bar-track"><div class="bar-fill casting" id="barCasting"></div></div>
-              <span id="pctCasting">0%</span>
-            </div>
-            <div class="bar-row">
-              <span>Labor</span>
-              <div class="bar-track"><div class="bar-fill labor" id="barLabor"></div></div>
-              <span id="pctLabor">0%</span>
-            </div>
-            <div class="bar-row">
-              <span>Overhead</span>
-              <div class="bar-track"><div class="bar-fill overhead" id="barOverhead"></div></div>
-              <span id="pctOverhead">0%</span>
-            </div>
-          </div>
+  function calculate() {
+    var hourlyRate = num('hourlyRate');
+    var silverPrice = num('silverPrice');
+    var overheadPct = num('overheadPct');
+    var marginPct = num('marginPct');
+    var eurBam = num('eurBam');
+    var hours = num('hours');
+    var mat = materialEl.value;
 
-          <div class="price-tags">
-            <div class="price-tag local">
-              <div class="tag-label">Suggested BiH Price</div>
-              <div class="tag-value" id="bihPrice">0.00 KM</div>
-              <div class="tag-meta" id="bihMeta">Includes shipping and optional PDV</div>
-            </div>
-            <div class="price-tag intl">
-              <div class="tag-label">Suggested International Price</div>
-              <div class="tag-value" id="intlPrice">€0.00</div>
-              <div class="tag-meta" id="intlMeta">Fees + shipping allowance applied</div>
-            </div>
-          </div>
+    var laborCost = hours * hourlyRate;
 
-          <div class="mini-metrics">
-            <div class="mini">
-              <div class="m-label">Local wholesale</div>
-              <div class="m-value" id="localWholesaleOut">0.00 KM</div>
-            </div>
-            <div class="mini">
-              <div class="m-label">Intl wholesale</div>
-              <div class="m-value" id="intlWholesaleOut">€0.00</div>
-            </div>
-            <div class="mini">
-              <div class="m-label">Local net margin</div>
-              <div class="m-value" id="localMarginOut">0%</div>
-            </div>
-            <div class="mini">
-              <div class="m-label">Intl net margin</div>
-              <div class="m-value" id="intlMarginOut">0%</div>
-            </div>
-            <div class="mini">
-              <div class="m-label">Adjusted metal</div>
-              <div class="m-value" id="adjMetalOut">0.00 g</div>
-            </div>
-            <div class="mini">
-              <div class="m-label">Labor hours</div>
-              <div class="m-value" id="laborHoursOut">0.00 h</div>
-            </div>
-          </div>
-        </div>
-      </aside>
-    </div>
+    var materialCost = 0;
+    if (mat === 'silver' || mat === 'combo') {
+      materialCost += num('silverGrams') * silverPrice;
+    }
+    if (mat === 'wood' || mat === 'combo') {
+      materialCost += num('woodCost');
+    }
 
-    <div class="section-title">
-      <h2>Market Comparison</h2>
-      <p>Exact costs, markups, platform fees, and net profit margins</p>
-    </div>
+    var subtotal = laborCost + materialCost;
+    var overheadCost = subtotal * (overheadPct / 100);
+    var totalCogs = subtotal + overheadCost;
 
-    <section class="table-card" aria-label="Comparison table">
-      <table>
-        <thead>
-          <tr>
-            <th>Line item</th>
-            <th class="num">Local (BiH)</th>
-            <th class="num">International</th>
-          </tr>
-        </thead>
-        <tbody id="comparisonBody"></tbody>
-      </table>
-    </section>
-  </div>
+    var marginFraction = Math.min(marginPct, 95) / 100;
+    var retailPrice = marginFraction < 1 ? totalCogs / (1 - marginFraction) : totalCogs;
+    var profit = retailPrice - totalCogs;
 
-  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    document.getElementById('outLabor').textContent = fmtEUR(laborCost);
+    document.getElementById('outMaterial').textContent = fmtEUR(materialCost);
+    document.getElementById('outOverhead').textContent = fmtEUR(overheadCost);
+    document.getElementById('outCogs').textContent = fmtEUR(totalCogs) + ' · ' + fmtKM(totalCogs * eurBam);
+    document.getElementById('outRetail').textContent = fmtEUR(retailPrice) + ' · ' + fmtKM(retailPrice * eurBam);
+    document.getElementById('outProfit').textContent = fmtEUR(profit) + ' · ' + fmtKM(profit * eurBam);
 
-  <script>
-    (function () {
-      "use strict";
+    updateFlag(retailPrice * eurBam);
+  }
 
-      var EUR_TO_BAM = 1.95583;
-      var STORAGE_KEY = "jewelry-cogs-calculator-v2";
+  function updateFlag(retailKM) {
+    var flagEl = document.getElementById('outFlag');
+    var refMin = document.getElementById('refMin').value;
+    var refMax = document.getElementById('refMax').value;
 
-      var defaults = {
-        metalWeight: 8,
-        scrapBuffer: 12,
-        metalSpot: 62,
-        gemstones: 45,
-        findings: 12,
-        consumables: 1.5,
-        waxPrint: 8,
-        castingFee: 18,
-        plating: 10,
-        hourlyWage: 30,
-        fabMinutes: 90,
-        setMinutes: 45,
-        qcMinutes: 15,
-        rentShare: 6,
-        packaging: 3.5,
-        softwareMkt: 4,
-        tools: 2.5,
-        localWholesaleMult: 2,
-        localRetailMult: 2,
-        localCurrencyLabel: "KM",
-        localPayFee: 1.5,
-        localShipping: 6,
-        localVat: true,
-        intlWholesaleMult: 2.2,
-        intlRetailMult: 2.2,
-        intlCurrency: "EUR",
-        fxRate: 1.08,
-        gatewayFee: 4.5,
-        listingFee: 6.5,
-        intlShipping: 18,
-        customsBuffer: 2,
-        forexBuffer: 3
-      };
+    if (refMin === '' && refMax === '') {
+      flagEl.textContent = 'No reference range set.';
+      flagEl.dataset.state = 'good';
+      return;
+    }
 
-      var numberIds = [
-        "metalWeight", "scrapBuffer", "metalSpot", "gemstones", "findings", "consumables",
-        "waxPrint", "castingFee", "plating",
-        "hourlyWage", "fabMinutes", "setMinutes", "qcMinutes",
-        "rentShare", "packaging", "softwareMkt", "tools",
-        "localWholesaleMult", "localRetailMult", "localPayFee", "localShipping",
-        "intlWholesaleMult", "intlRetailMult", "fxRate", "gatewayFee", "listingFee",
-        "intlShipping", "customsBuffer", "forexBuffer"
-      ];
+    var min = parseFloat(refMin);
+    var max = parseFloat(refMax);
+    if (isNaN(min)) min = 0;
+    if (isNaN(max)) max = Infinity;
 
-      var selectIds = ["localCurrencyLabel", "intlCurrency"];
-      var checkIds = ["localVat"];
+    if (retailKM >= min && retailKM <= max) {
+      flagEl.textContent = 'Within your reference range (' + min + '–' + max + ' KM).';
+      flagEl.dataset.state = 'good';
+    } else if (retailKM < min) {
+      flagEl.textContent = 'Below reference range (' + min + '–' + max + ' KM). Margin or price may be too low.';
+      flagEl.dataset.state = 'warn';
+    } else {
+      flagEl.textContent = 'Above reference range (' + min + '–' + max + ' KM). Consider adjusting margin or costs.';
+      flagEl.dataset.state = 'warn';
+    }
+  }
 
-      function el(id) {
-        return document.getElementById(id);
-      }
+  collectionEl.addEventListener('change', function () {
+    applyCollectionDefault();
+    calculate();
+  });
+  materialEl.addEventListener('change', function () {
+    updateMaterialVisibility();
+    calculate();
+  });
+  form.addEventListener('input', calculate);
 
-      function toNumber(value) {
-        var n = parseFloat(value);
-        return isFinite(n) ? n : 0;
-      }
-
-      function num(id) {
-        return toNumber(el(id).value);
-      }
-
-      function money(value, currency) {
-        var abs = Math.abs(value);
-        var formatted = abs.toLocaleString(undefined, {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2
-        });
-        var sign = value < 0 ? "-" : "";
-        if (currency === "BAM" || currency === "KM") return sign + formatted + " " + currency;
-        if (currency === "USD") return sign + "$" + formatted;
-        return sign + "€" + formatted;
-      }
-
-      function pctText(ratio) {
-        return (ratio * 100).toLocaleString(undefined, {
-          minimumFractionDigits: 1,
-          maximumFractionDigits: 1
-        }) + "%";
-      }
-
-      function readState() {
-        var state = {};
-        var i;
-        for (i = 0; i < numberIds.length; i++) {
-          state[numberIds[i]] = num(numberIds[i]);
-        }
-        for (i = 0; i < selectIds.length; i++) {
-          state[selectIds[i]] = el(selectIds[i]).value;
-        }
-        for (i = 0; i < checkIds.length; i++) {
-          state[checkIds[i]] = el(checkIds[i]).checked;
-        }
-        return state;
-      }
-
-      function writeState(state) {
-        var i;
-        var id;
-        for (i = 0; i < numberIds.length; i++) {
-          id = numberIds[i];
-          if (Object.prototype.hasOwnProperty.call(state, id)) {
-            el(id).value = state[id];
-          }
-        }
-        for (i = 0; i < selectIds.length; i++) {
-          id = selectIds[i];
-          if (Object.prototype.hasOwnProperty.call(state, id)) {
-            el(id).value = state[id];
-          }
-        }
-        for (i = 0; i < checkIds.length; i++) {
-          id = checkIds[i];
-          if (Object.prototype.hasOwnProperty.call(state, id)) {
-            el(id).checked = Boolean(state[id]);
-          }
-        }
-      }
-
-      function saveState() {
-        try {
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(readState()));
-        } catch (err) {
-          // ignore storage failures
-        }
-      }
-
-      function loadState() {
-        try {
-          var raw = localStorage.getItem(STORAGE_KEY);
-          if (!raw) {
-            writeState(defaults);
-            return;
-          }
-          var parsed = JSON.parse(raw);
-          writeState(Object.assign({}, defaults, parsed));
-        } catch (err) {
-          writeState(defaults);
-        }
-      }
-
-      function showToast(message) {
-        var toast = el("toast");
-        toast.textContent = message;
-        toast.classList.add("show");
-        clearTimeout(showToast._timer);
-        showToast._timer = setTimeout(function () {
-          toast.classList.remove("show");
-        }, 1800);
-      }
-
-      function calc(state) {
-        var scrap = state.scrapBuffer / 100;
-        var adjustedMetal = state.metalWeight * (1 + scrap);
-        var totalMetalCost = adjustedMetal * state.metalSpot;
-
-        var materials = totalMetalCost + state.gemstones + state.findings + state.consumables;
-        var casting = state.waxPrint + state.castingFee + state.plating;
-
-        var totalMinutes = state.fabMinutes + state.setMinutes + state.qcMinutes;
-        var laborHours = totalMinutes / 60;
-        var labor = laborHours * state.hourlyWage;
-
-        var overhead = state.rentShare + state.packaging + state.softwareMkt + state.tools;
-        var cogs = materials + casting + labor + overhead;
-
-        // Local market (BiH)
-        var localWholesaleEur = cogs * state.localWholesaleMult;
-        var localBaseRetailEur = localWholesaleEur * state.localRetailMult;
-        var localBaseRetailBam = localBaseRetailEur * EUR_TO_BAM;
-        var localPayRate = state.localPayFee / 100;
-        var localVatRate = state.localVat ? 0.17 : 0;
-        var localFinalBam =
-          localBaseRetailBam * (1 + localPayRate) * (1 + localVatRate) + state.localShipping;
-
-        // Expand: base * (1+pay) * (1+vat) = base + base*pay + base*vat + base*pay*vat
-        var localPayAmountBam = localBaseRetailBam * localPayRate * (1 + localVatRate);
-        var localVatAmountBam = localBaseRetailBam * (1 + localPayRate) * localVatRate;
-        var cogsBam = cogs * EUR_TO_BAM;
-        var localNetProfitBam =
-          localFinalBam - cogsBam - state.localShipping - localPayAmountBam - localVatAmountBam;
-        var localMargin = localFinalBam > 0 ? localNetProfitBam / localFinalBam : 0;
-        var localLabel = state.localCurrencyLabel === "BAM" ? "BAM" : "KM";
-
-        // International market
-        var intlWholesaleEur = cogs * state.intlWholesaleMult;
-        var intlBaseRetailEur = intlWholesaleEur * state.intlRetailMult;
-        var gatewayRate = state.gatewayFee / 100;
-        var listingRate = state.listingFee / 100;
-        var customsRate = state.customsBuffer / 100;
-        var forexRate = state.forexBuffer / 100;
-        var feeStack = gatewayRate + listingRate + customsRate + forexRate;
-        var intlFinalEur = intlBaseRetailEur * (1 + feeStack) + state.intlShipping;
-
-        var fx = state.fxRate > 0 ? state.fxRate : 1;
-        var intlIsUsd = state.intlCurrency === "USD";
-        var intlCurrency = intlIsUsd ? "USD" : "EUR";
-        var toDisplay = function (eurValue) {
-          return intlIsUsd ? eurValue * fx : eurValue;
-        };
-
-        var feeAmountEur = intlBaseRetailEur * feeStack;
-        var intlNetProfitEur = intlFinalEur - cogs - state.intlShipping - feeAmountEur;
-        var intlMargin = intlFinalEur > 0 ? intlNetProfitEur / intlFinalEur : 0;
-
-        var share = function (part) {
-          return cogs > 0 ? part / cogs : 0;
-        };
-
-        return {
-          adjustedMetal: adjustedMetal,
-          totalMetalCost: totalMetalCost,
-          materials: materials,
-          casting: casting,
-          laborHours: laborHours,
-          labor: labor,
-          overhead: overhead,
-          cogs: cogs,
-          shares: {
-            materials: share(materials),
-            casting: share(casting),
-            labor: share(labor),
-            overhead: share(overhead)
-          },
-          local: {
-            label: localLabel,
-            wholesaleEur: localWholesaleEur,
-            baseRetailEur: localBaseRetailEur,
-            wholesaleBam: localWholesaleEur * EUR_TO_BAM,
-            baseRetailBam: localBaseRetailBam,
-            finalBam: localFinalBam,
-            payAmountBam: localPayAmountBam,
-            vatAmountBam: localVatAmountBam,
-            shippingBam: state.localShipping,
-            cogsBam: cogsBam,
-            netProfitBam: localNetProfitBam,
-            margin: localMargin,
-            vatOn: state.localVat,
-            payFeePct: state.localPayFee
-          },
-          intl: {
-            currency: intlCurrency,
-            wholesaleEur: intlWholesaleEur,
-            baseRetailEur: intlBaseRetailEur,
-            finalEur: intlFinalEur,
-            finalDisplay: toDisplay(intlFinalEur),
-            wholesaleDisplay: toDisplay(intlWholesaleEur),
-            baseRetailDisplay: toDisplay(intlBaseRetailEur),
-            feeAmountDisplay: toDisplay(feeAmountEur),
-            shippingDisplay: toDisplay(state.intlShipping),
-            cogsDisplay: toDisplay(cogs),
-            netProfitDisplay: toDisplay(intlNetProfitEur),
-            feeStack: feeStack,
-            shippingEur: state.intlShipping,
-            netProfitEur: intlNetProfitEur,
-            margin: intlMargin,
-            gateway: state.gatewayFee,
-            listing: state.listingFee,
-            customs: state.customsBuffer,
-            forex: state.forexBuffer,
-            fx: fx
-          }
-        };
-      }
-
-      function setBar(id, ratio) {
-        var width = Math.max(0, Math.min(100, ratio * 100));
-        el(id).style.width = width.toFixed(1) + "%";
-      }
-
-      function renderComparison(result) {
-        var local = result.local;
-        var intl = result.intl;
-        var rows = [
-          ["Total Base COGS", money(local.cogsBam, local.label), money(intl.cogsDisplay, intl.currency)],
-          ["Wholesale price", money(local.wholesaleBam, local.label), money(intl.wholesaleDisplay, intl.currency)],
-          ["Base retail (before market fees)", money(local.baseRetailBam, local.label), money(intl.baseRetailDisplay, intl.currency)],
-          ["Payment / platform fee amounts", money(local.payAmountBam, local.label), money(intl.feeAmountDisplay, intl.currency)],
-          ["VAT / PDV", local.vatOn ? money(local.vatAmountBam, local.label) + " (17%)" : "Off", "n/a"],
-          ["Shipping", money(local.shippingBam, local.label), money(intl.shippingDisplay, intl.currency)],
-          ["Final suggested retail", money(local.finalBam, local.label), money(intl.finalDisplay, intl.currency)],
-          ["Estimated net profit", money(local.netProfitBam, local.label), money(intl.netProfitDisplay, intl.currency)],
-          ["Estimated net margin", pctText(local.margin), pctText(intl.margin)],
-          [
-            "Fee notes",
-            "Pay " + local.payFeePct.toFixed(1) + "%" + (local.vatOn ? " + PDV 17%" : " · no PDV"),
-            "Gateway " + intl.gateway.toFixed(1) + "% · Listing " + intl.listing.toFixed(1) +
-              "% · Customs " + intl.customs.toFixed(1) + "% · FX " + intl.forex.toFixed(1) + "%"
-          ]
-        ];
-
-        var html = "";
-        var i;
-        for (i = 0; i < rows.length; i++) {
-          var strong = i === 6;
-          var profit = i === 7 || i === 8;
-          var cls = strong ? "emphasis" : profit ? "profit" : "";
-          html += "<tr>";
-          html += "<td class=\"" + cls + "\">" + rows[i][0] + "</td>";
-          html += "<td class=\"num " + cls + "\">" + rows[i][1] + "</td>";
-          html += "<td class=\"num " + cls + "\">" + rows[i][2] + "</td>";
-          html += "</tr>";
-        }
-        el("comparisonBody").innerHTML = html;
-      }
-
-      function render() {
-        var state = readState();
-        var result = calc(state);
-
-        el("metaMaterials").textContent = money(result.materials, "EUR");
-        el("metaCasting").textContent = money(result.casting, "EUR");
-        el("metaLabor").textContent = money(result.labor, "EUR");
-        el("metaOverhead").textContent = money(result.overhead, "EUR");
-
-        el("materialsSubtotalLabel").textContent = money(result.materials, "EUR");
-        el("castingSubtotalLabel").textContent = money(result.casting, "EUR");
-        el("laborSubtotalLabel").textContent = money(result.labor, "EUR");
-        el("overheadSubtotalLabel").textContent = money(result.overhead, "EUR");
-
-        el("metalHint").textContent =
-          "Adjusted metal weight: " + result.adjustedMetal.toFixed(3) +
-          " g · Metal cost: " + money(result.totalMetalCost, "EUR");
-        el("laborHint").textContent = "Total labor: " + result.laborHours.toFixed(2) + " h";
-
-        el("totalCogs").textContent = money(result.cogs, "EUR");
-
-        setBar("barMaterials", result.shares.materials);
-        setBar("barCasting", result.shares.casting);
-        setBar("barLabor", result.shares.labor);
-        setBar("barOverhead", result.shares.overhead);
-
-        el("pctMaterials").textContent = Math.round(result.shares.materials * 100) + "%";
-        el("pctCasting").textContent = Math.round(result.shares.casting * 100) + "%";
-        el("pctLabor").textContent = Math.round(result.shares.labor * 100) + "%";
-        el("pctOverhead").textContent = Math.round(result.shares.overhead * 100) + "%";
-
-        el("bihPrice").textContent = money(result.local.finalBam, result.local.label);
-        el("bihMeta").textContent = result.local.vatOn
-          ? "Includes payment fee, 17% PDV, and shipping"
-          : "Includes payment fee and shipping (PDV off)";
-
-        el("intlPrice").textContent = money(result.intl.finalDisplay, result.intl.currency);
-        el("intlMeta").textContent =
-          "Fee stack " + (result.intl.feeStack * 100).toFixed(1) +
-          "% + shipping " + money(result.intl.shippingEur, "EUR");
-
-        el("localWholesaleOut").textContent = money(result.local.wholesaleBam, result.local.label);
-        el("intlWholesaleOut").textContent = money(result.intl.wholesaleDisplay, result.intl.currency);
-        el("localMarginOut").textContent = pctText(result.local.margin);
-        el("intlMarginOut").textContent = pctText(result.intl.margin);
-        el("adjMetalOut").textContent = result.adjustedMetal.toFixed(2) + " g";
-        el("laborHoursOut").textContent = result.laborHours.toFixed(2) + " h";
-
-        renderComparison(result);
-        saveState();
-      }
-
-      function bindEvents() {
-        var i;
-        var node;
-
-        for (i = 0; i < numberIds.length; i++) {
-          node = el(numberIds[i]);
-          node.addEventListener("input", render);
-          node.addEventListener("change", render);
-        }
-
-        for (i = 0; i < selectIds.length; i++) {
-          node = el(selectIds[i]);
-          node.addEventListener("input", render);
-          node.addEventListener("change", render);
-        }
-
-        for (i = 0; i < checkIds.length; i++) {
-          node = el(checkIds[i]);
-          node.addEventListener("change", render);
-        }
-
-        el("resetBtn").addEventListener("click", function () {
-          if (window.confirm("Reset all inputs to default values?")) {
-            writeState(defaults);
-            render();
-            showToast("Defaults restored");
-          }
-        });
-
-        el("printBtn").addEventListener("click", function () {
-          el("printTimestamp").textContent = "Generated: " + new Date().toLocaleString();
-          window.print();
-        });
-      }
-
-      loadState();
-      bindEvents();
-      render();
-    })();
-  </script>
+  updateMaterialVisibility();
+  calculate();
+})();
+</script>
 </body>
 </html>
