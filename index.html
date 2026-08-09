@@ -78,12 +78,17 @@
     background: #fff;
     color: var(--ink);
   }
-  .field select { width: auto; min-width: 9rem; }
+  .field select { width: auto; min-width: 11rem; }
   .toggle-group {
     display: none;
   }
   .toggle-group.active {
     display: block;
+  }
+  .tier-note {
+    font-size: 0.75rem;
+    color: #777;
+    margin: -0.3rem 0 0.6rem;
   }
   .results {
     background: var(--ink);
@@ -145,20 +150,20 @@
     <fieldset>
       <legend>Global rates</legend>
       <div class="field">
-        <label for="hourlyRate">Labor rate (EUR / hour)<span class="hint">Suggested default, replace with your real rate</span></label>
-        <input type="number" id="hourlyRate" value="15" min="0" step="0.5">
+        <label for="hourlyRate">Labor rate (EUR / hour)</label>
+        <input type="number" id="hourlyRate" value="22" min="0" step="0.5">
       </div>
       <div class="field">
         <label for="silverPrice">Silver price (EUR / gram)</label>
         <input type="number" id="silverPrice" value="2.2" min="0" step="0.1">
       </div>
       <div class="field">
-        <label for="overheadPct">Overhead (%)<span class="hint">Packaging, tools, misc — suggested default</span></label>
+        <label for="overheadPct">Overhead (%)<span class="hint">Packaging, tools, misc</span></label>
         <input type="number" id="overheadPct" value="15" min="0" step="1">
       </div>
       <div class="field">
-        <label for="marginPct">Target margin (% of retail price)<span class="hint">Suggested default</span></label>
-        <input type="number" id="marginPct" value="50" min="0" max="95" step="1">
+        <label for="marginPct">Target margin (% of retail price)<span class="hint">Auto suggested per tier, editable</span></label>
+        <input type="number" id="marginPct" value="55" min="0" max="95" step="1">
       </div>
       <div class="field">
         <label for="eurBam">EUR → KM conversion</label>
@@ -171,11 +176,13 @@
       <div class="field">
         <label for="collection">Collection</label>
         <select id="collection">
-          <option value="base">Base Collection</option>
-          <option value="limited">Ebony Wood &amp; Silver (Limited)</option>
-          <option value="bold">Bold Statement</option>
+          <option value="base">Base — Silver only</option>
+          <option value="limited">Limited — Wood or Wood + Silver</option>
+          <option value="bold">Bold — Luxury (any material)</option>
         </select>
       </div>
+      <p class="tier-note" id="tierNote">Base Collection is silver only, the accessible everyday tier.</p>
+
       <div class="field">
         <label for="material">Material</label>
         <select id="material">
@@ -193,7 +200,7 @@
         <input type="number" id="silverGrams" value="5" min="0" step="0.1">
       </div>
       <div class="field toggle-group" id="woodGroup">
-        <label for="woodCost">Wood cost per piece (EUR)<span class="hint">Your range: 1–2 EUR</span></label>
+        <label for="woodCost">Wood cost per piece (EUR)<span class="hint">Your range: 1–2 EUR, more for Bold</span></label>
         <input type="number" id="woodCost" value="1.5" min="0" step="0.1">
       </div>
     </fieldset>
@@ -202,13 +209,13 @@
       <legend>Reference check (optional)</legend>
       <div class="field">
         <label for="refMin">Reference min price (KM)</label>
-        <input type="number" id="refMin" value="200" min="0" step="1">
+        <input type="number" id="refMin" value="190" min="0" step="1">
       </div>
       <div class="field">
         <label for="refMax">Reference max price (KM)</label>
-        <input type="number" id="refMax" value="300" min="0" step="1">
+        <input type="number" id="refMax" value="210" min="0" step="1">
       </div>
-      <p class="note">Defaults to your confirmed one-of-one wood ring anchor. Change or clear for other products.</p>
+      <p class="note">Defaults to a suggested Base silver ring range. Change per product you're testing.</p>
     </fieldset>
   </form>
 
@@ -232,13 +239,33 @@
   var collectionEl = document.getElementById('collection');
   var materialEl = document.getElementById('material');
   var hoursEl = document.getElementById('hours');
+  var marginEl = document.getElementById('marginPct');
   var silverGroup = document.getElementById('silverGroup');
   var woodGroup = document.getElementById('woodGroup');
+  var tierNote = document.getElementById('tierNote');
 
-  var COLLECTION_HOURS = {
-    base: 1.5,
-    limited: 2,
-    bold: 3
+  var TIER_CONFIG = {
+    base: {
+      allowedMaterials: ['silver'],
+      defaultMaterial: 'silver',
+      hours: 1.5,
+      margin: 55,
+      note: 'Base Collection is silver only, the accessible everyday tier.'
+    },
+    limited: {
+      allowedMaterials: ['wood', 'combo'],
+      defaultMaterial: 'wood',
+      hours: { wood: 1.5, combo: 2 },
+      margin: 68,
+      note: 'Limited Collection is wood only or wood + silver combo, scarce and hand textured.'
+    },
+    bold: {
+      allowedMaterials: ['silver', 'wood', 'combo'],
+      defaultMaterial: 'combo',
+      hours: 3,
+      margin: 72,
+      note: 'Bold Collection is the luxury tier, any material, larger and higher labor pieces.'
+    }
   };
 
   function fmtEUR(n) {
@@ -258,14 +285,28 @@
     woodGroup.classList.toggle('active', mat === 'wood' || mat === 'combo');
   }
 
-  function applyCollectionDefault() {
-    var col = collectionEl.value;
-    if (COLLECTION_HOURS.hasOwnProperty(col)) {
-      hoursEl.value = COLLECTION_HOURS[col];
+  function refreshMaterialOptions() {
+    var tier = TIER_CONFIG[collectionEl.value];
+    var options = materialEl.querySelectorAll('option');
+    options.forEach(function (opt) {
+      var allowed = tier.allowedMaterials.indexOf(opt.value) !== -1;
+      opt.disabled = !allowed;
+      opt.hidden = !allowed;
+    });
+    if (tier.allowedMaterials.indexOf(materialEl.value) === -1) {
+      materialEl.value = tier.defaultMaterial;
     }
-    if (col === 'limited' && materialEl.value === 'silver') {
-      materialEl.value = 'combo';
-      updateMaterialVisibility();
+  }
+
+  function applyTierDefaults() {
+    var tier = TIER_CONFIG[collectionEl.value];
+    tierNote.textContent = tier.note;
+    marginEl.value = tier.margin;
+
+    if (typeof tier.hours === 'object') {
+      hoursEl.value = tier.hours[materialEl.value] || tier.hours.wood;
+    } else {
+      hoursEl.value = tier.hours;
     }
   }
 
@@ -335,15 +376,19 @@
   }
 
   collectionEl.addEventListener('change', function () {
-    applyCollectionDefault();
+    refreshMaterialOptions();
+    applyTierDefaults();
+    updateMaterialVisibility();
     calculate();
   });
   materialEl.addEventListener('change', function () {
+    applyTierDefaults();
     updateMaterialVisibility();
     calculate();
   });
   form.addEventListener('input', calculate);
 
+  refreshMaterialOptions();
   updateMaterialVisibility();
   calculate();
 })();
