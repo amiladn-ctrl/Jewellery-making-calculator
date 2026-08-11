@@ -7,515 +7,604 @@
 <title>doba.objects — Pricing Calculator</title>
 <style>
 :root{
-  --bg:#f7f6f4; --surface:#fff; --line:#e5e2dd; --ink:#1c1b19;
-  --muted:#7c766e; --accent:#1c1b19; --good:#2f6b4f; --warn:#b45a2a; --bad:#9e2b2b;
-  --chip:#efedea; --shadow:0 8px 30px rgba(0,0,0,.06); --r:16px; --pad:18px;
+ --bg:#f7f6f4; --surface:#fff; --line:#e5e2dd; --ink:#1c1b19;
+ --muted:#7c766e; --accent:#1c1b19; --good:#2f6b4f; --warn:#b45a2a; --bad:#9e2b2b;
+ --chip:#efedea; --shadow:0 8px 30px rgba(0,0,0,.06); --r:16px; --pad:18px;
 }
 @media (prefers-color-scheme: dark){
-  :root{
-    --bg:#141414; --surface:#1d1d1d; --line:#2c2b2a; --ink:#eeebe7; --muted:#99948d;
-    --accent:#eeebe7; --chip:#2a2a29; --shadow:0 8px 30px rgba(0,0,0,.3);
-  }
+ :root{
+   --bg:#141414; --surface:#1d1d1d; --line:#2c2b2a; --ink:#eeebe7; --muted:#99948d;
+   --accent:#eeebe7; --chip:#2a2a29; --shadow:0 8px 30px rgba(0,0,0,.3);
+ }
 }
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-html{scroll-behavior:smooth}
-body{
-  margin:0; background:var(--bg); color:var(--ink);
-  font:16px/1.55 ui-sans-serif,-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;
-  -webkit-text-size-adjust:100%;
+html { scroll-behavior: smooth; }
+body {
+ margin: 0; background: var(--bg); color: var(--ink);
+ font: 16px/1.55 ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+ -webkit-text-size-adjust: 100%;
 }
-.nav{
-  position:sticky; top:0; z-index:10; background:rgba(247,246,244,.92);
-  backdrop-filter:saturate(180%) blur(12px); border-bottom:1px solid var(--line);
+.nav {
+ position: sticky; top: 0; z-index: 10;
+ background: rgba(247,246,244,.92); backdrop-filter: saturate(180%) blur(12px);
+ border-bottom: 1px solid var(--line);
 }
-@media (prefers-color-scheme: dark){ .nav{ background:rgba(20,20,20,.9); } }
-.nav__inner{
-  max-width:1100px; margin:0 auto; padding:13px var(--pad);
-  display:flex; align-items:center; gap:12px; justify-content:space-between;
+@media (prefers-color-scheme: dark){ .nav{ background: rgba(20,20,20,.9); } }
+.nav__inner {
+ max-width: 1100px; margin: 0 auto; padding: 13px var(--pad);
+ display: flex; align-items: center; gap: 12px; justify-content: space-between;
 }
-.nav__brand{ font-weight:600; letter-spacing:.02em; font-size:15px; }
-.nav__tabs{ display:flex; gap:7px; overflow-x:auto; scrollbar-width:none; }
-.nav__tabs::-webkit-scrollbar{ display:none; }
-.tier{
-  border:1px solid var(--line); background:var(--surface); color:var(--muted);
-  padding:7px 16px; border-radius:999px; font-size:13px; cursor:pointer;
-  white-space:nowrap; transition:all .12s;
+.nav__brand { font-weight: 600; letter-spacing: .02em; font-size: 15px; }
+.nav__tabs { display: flex; gap: 7px; overflow-x: auto; scrollbar-width: none; }
+.nav__tabs::-webkit-scrollbar { display: none; }
+.tier {
+ border: 1px solid var(--line); background: var(--surface); color: var(--muted);
+ padding: 7px 16px; border-radius: 999px; font-size: 13px; cursor: pointer;
+ white-space: nowrap; transition: all .12s;
 }
-.tier[aria-pressed="true"]{ background:var(--accent); color:var(--bg); border-color:var(--accent); }
-.wrap{ max-width:1100px; margin:0 auto; padding:24px var(--pad) 70px; }
-h1{ font-size:24px; font-weight:600; margin:6px 0 4px; letter-spacing:-.015em; }
-.sub{ color:var(--muted); font-size:14px; margin:0 0 22px; }
-.cols{ display:grid; gap:18px; }
-@media(min-width:920px){ .cols{ grid-template-columns:1fr 1fr; align-items:start; } }
-.card{
-  background:var(--surface); border:1px solid var(--line); border-radius:var(--r);
-  padding:20px; box-shadow:var(--shadow);
+.tier[aria-pressed="true"] { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+.wrap { max-width: 1100px; margin: 0 auto; padding: 24px var(--pad) 70px; }
+h1 { font-size: 24px; font-weight: 600; margin: 6px 0 4px; letter-spacing: -.015em; }
+.sub { color: var(--muted); font-size: 14px; margin: 0 0 22px; }
+.cols { display: grid; gap: 18px; }
+@media(min-width: 920px){ .cols { grid-template-columns: 1fr 1fr; align-items: start; } }
+.card {
+ background: var(--surface); border: 1px solid var(--line); border-radius: var(--r);
+ padding: 20px; box-shadow: var(--shadow);
 }
-.card--out{ position:sticky; top:74px; }
-@media(max-width:919px){ .card--out{ position:static; } }
-h2{
-  font-size:11px; text-transform:uppercase; letter-spacing:.1em; color:var(--muted);
-  margin:0 0 14px; font-weight:600;
+.card--out { position: sticky; top: 74px; }
+@media(max-width: 919px){ .card--out { position: static; } }
+h2 {
+ font-size: 11px; text-transform: uppercase; letter-spacing: .1em; color: var(--muted);
+ margin: 0 0 14px; font-weight: 600;
 }
-.f{ display:grid; grid-template-columns:1fr 104px; gap:12px; align-items:center; padding:9px 0; border-bottom:1px solid var(--line); }
-.f:last-child{ border-bottom:0; }
-.f__lab{ font-size:14.5px; line-height:1.35; }
-.f__hint{ display:block; color:var(--muted); font-size:11.5px; margin-top:2px; }
-input, select{
-  width:100%; padding:9px 11px; border:1px solid var(--line); border-radius:10px;
-  background:var(--bg); color:var(--ink); font:inherit; font-size:14.5px; text-align:right;
+.field {
+ display: grid; grid-template-columns: 1fr 104px; gap: 12px;
+ align-items: center; padding: 9px 0; border-bottom: 1px solid var(--line);
 }
-input:focus, select:focus{ outline:2px solid var(--accent); outline-offset:1px; }
-select{ text-align:left; }
-.hero{
-  background:var(--accent); color:var(--bg); border-radius:var(--r); padding:20px; margin-bottom:16px;
-  position:relative; overflow:hidden;
+.field:last-child { border-bottom: 0; }
+.field__label { font-size: 14.5px; line-height: 1.35; }
+.field__hint { display: block; color: var(--muted); font-size: 11.5px; margin-top: 2px; }
+input, select {
+ width: 100%; padding: 9px 11px; border: 1px solid var(--line); border-radius: 10px;
+ background: var(--bg); color: var(--ink); font: inherit; font-size: 14.5px; text-align: right;
 }
-.hero__k{ font-size:11px; letter-spacing:.1em; text-transform:uppercase; opacity:.7; }
-.hero__v{ font-size:38px; font-weight:600; letter-spacing:-.03em; margin:3px 0 2px; }
-.hero__fx{ font-size:13.5px; opacity:.75; }
-.row{ display:flex; justify-content:space-between; gap:12px; padding:9px 0; border-bottom:1px solid var(--line); font-size:14.5px; }
-.row:last-child{ border-bottom:0; }
-.row__v{ font-variant-numeric:tabular-nums; font-weight:600; }
-.row--tot{ font-size:16.5px; padding-top:11px; }
-.metric{ background:var(--chip); border-radius:12px; padding:12px 14px; margin:8px 0; }
-.metric__k{ font-size:12px; color:var(--muted); margin-bottom:3px; }
-.metric__v{ font-size:20px; font-weight:600; }
-.bar{ height:6px; background:var(--line); border-radius:99px; margin-top:8px; overflow:hidden; }
-.bar__fill{ height:100%; border-radius:99px; background:var(--good); width:0; transition:width .3s; }
-table{ width:100%; border-collapse:collapse; font-size:13.5px; margin-top:6px; }
-th, td{ text-align:right; padding:9px 5px; border-bottom:1px solid var(--line); font-variant-numeric:tabular-nums; }
-th:first-child, td:first-child{ text-align:left; }
-th{ color:var(--muted); font-weight:600; font-size:11px; text-transform:uppercase; letter-spacing:.06em; }
-tr[data-active="1"] td{ background:var(--chip); font-weight:600; }
-.flag{ margin-top:12px; padding:11px 13px; border-radius:11px; font-size:13.2px; line-height:1.45; border:1px solid var(--line); }
-.flag--good{ background:rgba(47,107,79,.08); border-color:rgba(47,107,79,.2); color:var(--good); }
-.flag--warn{ background:rgba(180,90,42,.08); border-color:rgba(180,90,42,.2); color:var(--warn); }
-.flag--bad{ background:rgba(158,43,43,.08); border-color:rgba(158,43,43,.2); color:var(--bad); }
-.btns{ display:flex; gap:10px; flex-wrap:wrap; margin-top:18px; }
-button.act{
-  flex:1 1 auto; padding:11px 14px; border-radius:11px; border:1px solid var(--accent);
-  background:var(--accent); color:var(--bg); font:inherit; font-size:14px; cursor:pointer; transition:opacity .12s;
+select { text-align: left; }
+input:focus, select:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+.hero {
+ background: var(--accent); color: var(--bg); border-radius: var(--r);
+ padding: 20px; margin-bottom: 16px; position: relative; overflow: hidden;
 }
-button.act:hover{ opacity:.9; }
-button.act--ghost{ background:transparent; color:var(--ink); border-color:var(--line); }
-button.act--ghost:hover{ background:var(--chip); }
-.presets{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px; }
-.preset{
-  border:1px solid var(--line); background:var(--chip); color:var(--ink); border-radius:8px;
-  padding:7px 11px; font-size:13px; cursor:pointer;
+.hero__k { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; opacity: .7; }
+.hero__v { font-size: 38px; font-weight: 600; letter-spacing: -.03em; margin: 3px 0 2px; }
+.hero__fx { font-size: 13.5px; opacity: .75; }
+.row {
+ display: flex; justify-content: space-between; gap: 12px;
+ padding: 9px 0; border-bottom: 1px solid var(--line); font-size: 14.5px;
 }
-.preset--active{ border-color:var(--accent); font-weight:600; }
-.note{ color:var(--muted); font-size:12px; margin-top:16px; line-height:1.5; }
-.sep{ height:1px; background:var(--line); margin:20px 0; }
-@media print{
-  .nav, .btns, .presets, button{ display:none !important; }
-  .wrap{ padding:0; }
-  .card{ box-shadow:none; border:1px solid #ccc; }
+.row:last-child { border-bottom: 0; }
+.row__v { font-variant-numeric: tabular-nums; font-weight: 600; }
+.row--tot { font-size: 16.5px; padding-top: 11px; }
+.metric {
+ background: var(--chip); border-radius: 12px; padding: 12px 14px; margin: 8px 0;
+}
+.metric__k { font-size: 12px; color: var(--muted); margin-bottom: 3px; }
+.metric__v { font-size: 20px; font-weight: 600; }
+.bar { height: 6px; background: var(--line); border-radius: 99px; margin-top: 8px; overflow: hidden; }
+.bar__fill { height: 100%; border-radius: 99px; background: var(--good); width: 0; transition: width .25s; }
+table { width: 100%; border-collapse: collapse; font-size: 13.5px; margin-top: 6px; }
+th, td {
+ text-align: right; padding: 9px 5px; border-bottom: 1px solid var(--line);
+ font-variant-numeric: tabular-nums;
+}
+th:first-child, td:first-child { text-align: left; }
+th { color: var(--muted); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; }
+tr[data-active="1"] td { background: var(--chip); font-weight: 600; }
+.flag {
+ margin-top: 12px; padding: 11px 13px; border-radius: 11px; font-size: 13.2px;
+ line-height: 1.45; border: 1px solid var(--line);
+}
+.flag--good { background: rgba(47,107,79,.08); border-color: rgba(47,107,79,.2); color: var(--good); }
+.flag--warn { background: rgba(180,90,42,.08); border-color: rgba(180,90,42,.2); color: var(--warn); }
+.flag--bad { background: rgba(158,43,43,.08); border-color: rgba(158,43,43,.2); color: var(--bad); }
+.btns { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 18px; }
+button.act {
+ flex: 1 1 auto; padding: 11px 14px; border-radius: 11px; border: 1px solid var(--accent);
+ background: var(--accent); color: var(--bg); font: inherit; font-size: 14px; cursor: pointer;
+ transition: opacity .12s;
+}
+button.act:hover { opacity: .9; }
+button.act--ghost { background: transparent; color: var(--ink); border-color: var(--line); }
+button.act--ghost:hover { background: var(--chip); }
+.presets { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+.preset {
+ border: 1px solid var(--line); background: var(--chip); color: var(--ink);
+ border-radius: 8px; padding: 7px 11px; font-size: 13px; cursor: pointer;
+}
+.preset--active { border-color: var(--accent); font-weight: 600; }
+.sep { height: 1px; background: var(--line); margin: 20px 0; }
+.note { color: var(--muted); font-size: 12px; margin-top: 16px; line-height: 1.5; }
+@media print {
+ .nav, .btns, .presets, button { display: none !important; }
+ .wrap { padding: 0; }
+ .card { box-shadow: none; border: 1px solid #ccc; }
 }
 </style>
 </head>
 <body>
 
 <header class="nav">
-  <div class="nav__inner">
-    <span class="nav__brand">doba.objects · pricing</span>
-    <div class="nav__tabs" role="group" aria-label="Tier">
-      <button class="tier" type="button" data-tier="base" aria-pressed="true">Base</button>
-      <button class="tier" type="button" data-tier="limited" aria-pressed="false">Limited</button>
-      <button class="tier" type="button" data-tier="bold" aria-pressed="false">Bold</button>
-    </div>
-  </div>
+ <div class="nav__inner">
+   <span class="nav__brand">doba.objects · pricing</span>
+   <div class="nav__tabs" role="group" aria-label="Tier">
+     <button class="tier" type="button" data-tier="base" aria-pressed="true">Base</button>
+     <button class="tier" type="button" data-tier="limited" aria-pressed="false">Limited</button>
+     <button class="tier" type="button" data-tier="bold" aria-pressed="false">Bold</button>
+   </div>
+ </div>
 </header>
 
 <main class="wrap">
-  <h1 id="ttl">Base — molded, repeatable</h1>
-  <p class="sub">Costed pricing with metals, wastage, fees and a tier floor. Figures in KM unless marked.</p>
+ <h1 id="ttl">Base — molded, repeatable</h1>
+ <p class="sub">Costed pricing with metals, wastage, fees and a tier floor. Figures in KM unless marked.</p>
 
-  <div class="cols">
-    <section class="card" aria-label="Inputs">
-      <h2>Saved presets</h2>
-      <div class="presets" id="presets"></div>
+ <div class="cols">
+   <section class="card" aria-label="Inputs">
+     <h2>Saved presets</h2>
+     <div class="presets" id="presets"></div>
 
-      <h2>Materials &amp; making</h2>
-      <div id="inputs"></div>
+     <h2>Materials &amp; making</h2>
+     <div id="inputs"></div>
 
-      <div class="sep"></div>
+     <div class="sep"></div>
 
-      <h2>Currency &amp; rates</h2>
-      <div class="f">
-        <span class="f__lab">Currency display<span class="f__hint">updates live conversions</span></span>
-        <select id="selCur">
-          <option value="KM">KM</option>
-          <option value="EUR">EUR</option>
-          <option value="GBP">GBP</option>
-          <option value="USD">USD</option>
-        </select>
-      </div>
-      <div class="f">
-        <span class="f__lab">Metal preset<span class="f__hint">fills price per gram</span></span>
-        <select id="selMetal">
-          <option value="custom">Custom</option>
-          <option value="5.5">Sterling silver · 5.50 KM/g</option>
-          <option value="2.1">Brass · 2.10 KM/g</option>
-          <option value="2.6">Bronze · 2.60 KM/g</option>
-          <option value="180">14k gold · 180 KM/g</option>
-        </select>
-      </div>
-      <div class="f">
-        <span class="f__lab">EUR rate<span class="f__hint">1.95583 fixed peg</span></span>
-        <input type="number" id="inEUR" value="1.95583" step="0.00001">
-      </div>
-      <div class="f">
-        <span class="f__lab">GBP rate<span class="f__hint">check your bank</span></span>
-        <input type="number" id="inGBP" value="2.28" step="0.01">
-      </div>
-      <div class="f">
-        <span class="f__lab">USD rate<span class="f__hint">check your bank</span></span>
-        <input type="number" id="inUSD" value="1.79" step="0.01">
-      </div>
-    </section>
+     <h2>Currency &amp; rates</h2>
+     <div class="field">
+       <label class="field__label" for="selCur">Currency display<span class="field__hint">updates live conversions</span></label>
+       <select id="selCur">
+         <option value="KM">KM</option>
+         <option value="EUR">EUR</option>
+         <option value="GBP">GBP</option>
+         <option value="USD">USD</option>
+       </select>
+     </div>
+     <div class="field">
+       <label class="field__label" for="selMetal">Metal preset<span class="field__hint">fills price per gram</span></label>
+       <select id="selMetal">
+         <option value="custom">Custom</option>
+         <option value="5.5">Sterling silver · 5.50 KM/g</option>
+         <option value="2.1">Brass · 2.10 KM/g</option>
+         <option value="2.6">Bronze · 2.60 KM/g</option>
+         <option value="180">14k gold · 180 KM/g</option>
+       </select>
+     </div>
+     <div class="field">
+       <label class="field__label" for="inEUR">EUR rate<span class="field__hint">1.95583 fixed peg</span></label>
+       <input id="inEUR" type="number" step="any" value="1.95583">
+     </div>
+     <div class="field">
+       <label class="field__label" for="inGBP">GBP rate<span class="field__hint">check your bank</span></label>
+       <input id="inGBP" type="number" step="any" value="2.28">
+     </div>
+     <div class="field">
+       <label class="field__label" for="inUSD">USD rate<span class="field__hint">check your bank</span></label>
+       <input id="inUSD" type="number" step="any" value="1.79">
+     </div>
+   </section>
 
-    <section class="card card--out" aria-label="Result">
-      <div class="hero">
-        <span class="hero__k">Retail price · <span id="hTier">Base</span></span>
-        <div class="hero__v" id="hRetail">0 KM</div>
-        <div class="hero__fx" id="hFx">≈ 0 EUR · ≈ 0 GBP · ≈ 0 USD</div>
-      </div>
+   <section class="card card--out" aria-label="Result">
+     <div class="hero">
+       <span class="hero__k">Retail price · <span id="hTier">Base</span></span>
+       <div class="hero__v" id="hRetail">0 KM</div>
+       <div class="hero__fx" id="hFx">≈ 0 EUR · ≈ 0 GBP · ≈ 0 USD</div>
+     </div>
 
-      <div class="row"><span>Direct materials</span><span class="row__v" id="oDirect">0</span></div>
-      <div class="row"><span>Failed-cast allowance</span><span class="row__v" id="oWaste">0</span></div>
-      <div class="row"><span>Your labour</span><span class="row__v" id="oLabour">0</span></div>
-      <div class="row row--tot"><span>True cost</span><span class="row__v" id="oCost">0</span></div>
-      <div class="row"><span>Wholesale (cost × 2)</span><span class="row__v" id="oWhole">0</span></div>
-      <div class="row"><span>Payment &amp; platform fees</span><span class="row__v" id="oFees">0</span></div>
-      <div class="row"><span>Net profit per piece</span><span class="row__v" id="oProfit">0</span></div>
-      <div class="row"><span>Gross margin</span><span class="row__v" id="oMargin">0%</span></div>
+     <div class="row"><span>Direct materials</span><span class="row__v" id="oDirect">0</span></div>
+     <div class="row"><span>Failed-cast allowance</span><span class="row__v" id="oWaste">0</span></div>
+     <div class="row"><span>Your labour</span><span class="row__v" id="oLabour">0</span></div>
+     <div class="row row--tot"><span>True cost</span><span class="row__v" id="oCost">0</span></div>
+     <div class="row"><span>Wholesale (cost × 2)</span><span class="row__v" id="oWhole">0</span></div>
+     <div class="row"><span>Payment &amp; platform fees</span><span class="row__v" id="oFees">0</span></div>
+     <div class="row"><span>Net profit per piece</span><span class="row__v" id="oProfit">0</span></div>
+     <div class="row"><span>Gross margin</span><span class="row__v" id="oMargin">0%</span></div>
 
-      <div class="metric">
-        <div class="metric__k">Effective pay per hour</div>
-        <div class="metric__v" id="oHourly">0 KM</div>
-        <div class="bar"><div class="bar__fill" id="barHourly"></div></div>
-      </div>
+     <div class="metric">
+       <div class="metric__k">Effective pay per hour</div>
+       <div class="metric__v" id="oHourly">0 KM</div>
+       <div class="bar"><div class="bar__fill" id="barHourly"></div></div>
+     </div>
 
-      <div class="metric">
-        <div class="metric__k">Piece + 1 modular add-on</div>
-        <div class="metric__v" id="oBundle">0 KM</div>
-        <div class="bar"><div class="bar__fill" id="barBundle"></div></div>
-      </div>
+     <div class="metric">
+       <div class="metric__k">Piece + 1 modular add-on</div>
+       <div class="metric__v" id="oBundle">0 KM</div>
+       <div class="bar"><div class="bar__fill" id="barBundle"></div></div>
+     </div>
 
-      <div class="flag" id="flagFloor"></div>
-      <div class="flag" id="flagBench"></div>
+     <div class="flag" id="flagFloor"></div>
+     <div class="flag" id="flagBench"></div>
 
-      <h2 style="margin-top:22px">All tiers, same piece</h2>
-      <table>
-        <thead>
-          <tr><th>Tier</th><th>×</th><th>Retail</th><th>Net</th><th>Margin</th></tr>
-        </thead>
-        <tbody id="cmp"></tbody>
-      </table>
+     <h2 style="margin-top:22px">All tiers, same piece</h2>
+     <table>
+       <thead>
+         <tr><th>Tier</th><th>×</th><th>Retail</th><th>Net</th><th>Margin</th></tr>
+       </thead>
+       <tbody id="cmp"></tbody>
+     </table>
 
-      <div class="btns">
-        <button class="act" type="button" id="save">Save preset</button>
-        <button class="act act--ghost" type="button" id="csv">Export CSV</button>
-        <button class="act act--ghost" type="button" id="print">Print</button>
-        <button class="act act--ghost" type="button" id="reset">Reset</button>
-      </div>
-      <p class="note">
-        EUR peg is fixed at 1.95583 KM by the currency board. GBP and USD are manual; update them from your bank before using for final pricing. Retail = max(cost × tier multiplier, tier floor). Net profit subtracts materials, waste and fees but not income tax — keep 25% of net aside for tax.
-      </p>
-    </section>
-  </div>
+     <div class="btns">
+       <button class="act" type="button" id="save">Save preset</button>
+       <button class="act act--ghost" type="button" id="csv">Export CSV</button>
+       <button class="act act--ghost" type="button" id="print">Print</button>
+       <button class="act act--ghost" type="button" id="reset">Reset</button>
+     </div>
+     <p class="note">
+       EUR peg is fixed at 1.95583 KM by the currency board. GBP and USD are manual; update them from your bank before final pricing. Retail = max(cost × tier multiplier, tier floor). Net profit is pre-tax — keep roughly 25% aside for tax.
+     </p>
+   </section>
+ </div>
 </main>
 
 <script>
 (function(){
-  "use strict";
+ "use strict";
 
-  var DEFAULT_PRESET = "Default";
+ var DEFAULT_PRESET = "Default";
 
-  var TIERS = {
-    base:    {name:"Base",    title:"Base — molded, repeatable",       mult:4.0, floor:280},
-    limited: {name:"Limited", title:"Limited — made to order, once",   mult:4.6, floor:500},
-    bold:    {name:"Bold",    title:"Bold — statement, made to order", mult:5.2, floor:900}
-  };
+ var TIERS = {
+   base:    { name: "Base",    title: "Base — molded, repeatable",       mult: 4.0, floor: 280 },
+   limited: { name: "Limited", title: "Limited — made to order, once",   mult: 4.6, floor: 500 },
+   bold:    { name: "Bold",    title: "Bold — statement, made to order", mult: 5.2, floor: 900 }
+ };
 
-  var FIELDS = [
-    {k:"grams",  l:"Metal weight",          h:"grams of finished metal incl. sprue loss", v:9,    s:0.1},
-    {k:"perG",   l:"Metal price / gram",    h:"KM per gram",                             v:5.5,  s:0.01},
-    {k:"cast",   l:"Casting fee",           h:"KM per piece",                            v:25,   s:1},
-    {k:"stones", l:"Stones / extras",       h:"KM",                                      v:0,    s:1},
-    {k:"cons",   l:"Finishing consumables", h:"wax, polish, abrasives",                  v:8,    s:1},
-    {k:"ship",   l:"Shipping / packaging",  h:"box, card, pouch, postage",               v:15,   s:1},
-    {k:"hours",  l:"Your hours",            h:"wax, finish, admin, photo",               v:3,    s:0.25},
-    {k:"rate",   l:"Your hourly rate",      h:"KM/h — raise this yearly",                v:25,   s:1},
-    {k:"waste",  l:"Failed-cast allowance", h:"% of direct materials",                   v:12,   s:1},
-    {k:"fee",    l:"Payment + platform fee",h:"% of retail",                             v:6,    s:0.5}
-  ];
+ var FIELDS = [
+   { k: "grams",  l: "Metal weight",          h: "grams of finished metal incl. sprue loss", v: 9,   s: "any" },
+   { k: "perG",   l: "Metal price / gram",    h: "KM per gram",                              v: 5.5, s: "any" },
+   { k: "cast",   l: "Casting fee",           h: "KM per piece",                             v: 25,  s: "any" },
+   { k: "stones", l: "Stones / extras",       h: "KM",                                       v: 0,   s: "any" },
+   { k: "cons",   l: "Finishing consumables", h: "wax, polish, abrasives",                   v: 8,   s: "any" },
+   { k: "ship",   l: "Shipping / packaging",  h: "box, card, pouch, postage",                v: 15,  s: "any" },
+   { k: "hours",  l: "Your hours",            h: "wax, finish, admin, photo",                v: 3,   s: "any" },
+   { k: "rate",   l: "Your hourly rate",      h: "KM/h — raise this yearly",                 v: 25,  s: "any" },
+   { k: "waste",  l: "Failed-cast allowance", h: "% of direct materials",                    v: 12,  s: "any" },
+   { k: "fee",    l: "Payment + platform fee",h: "% of retail",                              v: 6,   s: "any" }
+ ];
 
-  var RATES = {EUR:1.95583, GBP:2.28, USD:1.79};
-  var currency = "KM";
-  var tier = "base";
-  var state = {};
-  var currentPreset = DEFAULT_PRESET;
+ var RATES = { EUR: 1.95583, GBP: 2.28, USD: 1.79 };
+ var currency = "KM";
+ var tier = "base";
+ var state = {};
+ var currentPreset = DEFAULT_PRESET;
 
-  var el = {};
-  ["ttl","hTier","hRetail","hFx","oDirect","oWaste","oLabour","oCost","oWhole","oFees",
-   "oProfit","oMargin","oHourly","oBundle","flagFloor","flagBench","cmp",
-   "barHourly","barBundle","presets","inputs","selCur","selMetal","inEUR","inGBP","inUSD"]
-   .forEach(function(id){ el[id] = document.getElementById(id); });
+ var el = {};
+ [
+   "ttl", "hTier", "hRetail", "hFx", "oDirect", "oWaste", "oLabour", "oCost",
+   "oWhole", "oFees", "oProfit", "oMargin", "oHourly", "oBundle", "flagFloor",
+   "flagBench", "cmp", "barHourly", "barBundle", "presets", "inputs",
+   "selCur", "selMetal", "inEUR", "inGBP", "inUSD"
+ ].forEach(function(id){ el[id] = document.getElementById(id); });
 
-  function load(){
-    var saved = null;
-    try{ saved = JSON.parse(localStorage.getItem("doba.pricing.v2") || "null"); }catch(e){}
-    state = {};
-    FIELDS.forEach(function(f){ state[f.k] = f.v; });
-    if(saved && saved.state) Object.assign(state, saved.state);
-    if(saved && saved.tier && TIERS[saved.tier]) tier = saved.tier;
-    if(saved && saved.currency) currency = saved.currency;
-    if(saved && saved.rates){ Object.assign(RATES, saved.rates); }
-    currentPreset = (saved && saved.currentPreset) ? saved.currentPreset : DEFAULT_PRESET;
-  }
+ function safeGet(key){
+   try { return localStorage.getItem(key); } catch(e){ return null; }
+ }
+ function safeSet(key, val){
+   try { localStorage.setItem(key, val); return true; } catch(e){ return false; }
+ }
 
-  function persist(){
-    try{
-      localStorage.setItem("doba.pricing.v2", JSON.stringify({
-        state:state, tier:tier, currency:currency, rates:RATES, currentPreset:currentPreset
-      }));
-      var ps = getPresets();
-      ps[currentPreset] = JSON.parse(JSON.stringify(state));
-      localStorage.setItem("doba.presets", JSON.stringify(ps));
-    }catch(e){}
-  }
+ function defaultState(){
+   var s = {};
+   FIELDS.forEach(function(f){ s[f.k] = f.v; });
+   return s;
+ }
 
-  function getPresets(){
-    try{ return JSON.parse(localStorage.getItem("doba.presets") || "{}"); }
-    catch(e){ return {}; }
-  }
+ function load(){
+   var saved = null;
+   var raw = safeGet("doba.pricing.v2");
+   if(raw){ try { saved = JSON.parse(raw); } catch(e){ saved = null; } }
+   state = defaultState();
+   if(saved && saved.state){ Object.assign(state, saved.state); }
+   if(saved && saved.tier && TIERS[saved.tier]){ tier = saved.tier; }
+   if(saved && saved.currency){ currency = saved.currency; }
+   if(saved && saved.rates){ Object.assign(RATES, saved.rates); }
+   currentPreset = (saved && saved.currentPreset) ? saved.currentPreset : DEFAULT_PRESET;
+ }
 
-  function renderPresets(){
-    var ps = getPresets();
-    if(!ps[DEFAULT_PRESET]) ps[DEFAULT_PRESET] = {};
-    FIELDS.forEach(function(f){ if(!(f.k in ps[DEFAULT_PRESET])) ps[DEFAULT_PRESET][f.k] = f.v; });
-    el.presets.innerHTML = "";
-    Object.keys(ps).forEach(function(name){
-      var b = document.createElement("button");
-      b.className = "preset" + (name === currentPreset ? " preset--active" : "");
-      b.type = "button";
-      b.textContent = name;
-      b.onclick = function(){
-        currentPreset = name;
-        state = JSON.parse(JSON.stringify(ps[name]));
-        document.querySelectorAll("#inputs input").forEach(function(i){ i.value = state[i.dataset.key]; });
-        persist();
-        renderPresets();
-        render();
-      };
-      el.presets.appendChild(b);
-    });
-  }
+ function getPresets(){
+   var raw = safeGet("doba.presets");
+   if(raw){ try { return JSON.parse(raw); } catch(e){} }
+   return {};
+ }
 
-  function buildInputs(){
-    var frag = document.createDocumentFragment();
-    FIELDS.forEach(function(f){
-      var wrap = document.createElement("label");
-      wrap.className = "f";
-      var lab = document.createElement("span");
-      lab.className = "f__lab";
-      lab.textContent = f.l;
-      var hint = document.createElement("span");
-      hint.className = "f__hint"; hint.textContent = f.h;
-      lab.appendChild(hint);
-      var inp = document.createElement("input");
-      inp.type = "number"; inp.min = "0"; inp.step = String(f.s);
-      inp.value = state[f.k]; inp.dataset.key = f.k;
-      inp.inputMode = "decimal";
-      wrap.appendChild(lab); wrap.appendChild(inp);
-      frag.appendChild(wrap);
-    });
-    el.inputs.appendChild(frag);
-    el.inputs.addEventListener("input", function(e){
-      var k = e.target.dataset.key;
-      if(!k) return;
-      var n = parseFloat(e.target.value);
-      state[k] = isFinite(n) && n >= 0 ? n : 0;
-      render();
-      persist();
-    });
-  }
+ function ensureDefaultPreset(){
+   var ps = getPresets();
+   if(!ps[DEFAULT_PRESET]){
+     var d = {};
+     FIELDS.forEach(function(f){ d[f.k] = f.v; });
+     ps[DEFAULT_PRESET] = d;
+     safeSet("doba.presets", JSON.stringify(ps));
+   }
+ }
 
-  function curSym(c){ return c === "KM" ? "KM" : c === "EUR" ? "€" : c === "GBP" ? "£" : "$"; }
-  function fmtKM(n){ return Math.round(n).toLocaleString("bs-BA") + " KM"; }
-  function fmtCur(n, c){
-    if(c === "KM") return fmtKM(n);
-    var v = n / (RATES[c] || 1);
-    if(v < 1) return curSym(c) + v.toFixed(2);
-    return curSym(c) + Math.round(v).toLocaleString("en-US");
-  }
+ function persist(){
+   safeSet("doba.pricing.v2", JSON.stringify({
+     state: state, tier: tier, currency: currency, rates: RATES, currentPreset: currentPreset
+   }));
+   var ps = getPresets();
+   ps[currentPreset] = JSON.parse(JSON.stringify(state));
+   safeSet("doba.presets", JSON.stringify(ps));
+ }
 
-  function up10(n){ return Math.ceil(n/10)*10; }
-  function clampPct(p){ return Math.min(Math.max(p,0),100); }
+ function renderPresets(){
+   ensureDefaultPreset();
+   var ps = getPresets();
+   el.presets.innerHTML = "";
+   Object.keys(ps).forEach(function(name){
+     var b = document.createElement("button");
+     b.className = "preset" + (name === currentPreset ? " preset--active" : "");
+     b.type = "button";
+     b.textContent = name;
+     b.onclick = function(){
+       currentPreset = name;
+       state = JSON.parse(JSON.stringify(ps[name]));
+       document.querySelectorAll("#inputs input").forEach(function(i){ i.value = state[i.dataset.key]; });
+       persist();
+       renderPresets();
+       render();
+     };
+     el.presets.appendChild(b);
+   });
+ }
 
-  function calc(t){
-    var s = state;
-    var direct = s.grams*s.perG + s.cast + s.stones + s.cons + s.ship;
-    var waste  = (s.grams*s.perG + s.cast + s.stones + s.cons) * (s.waste/100);
-    var labour = s.hours * s.rate;
-    var cost   = direct + waste + labour;
-    var raw    = cost * TIERS[t].mult;
-    var retail = Math.max(up10(raw), TIERS[t].floor);
-    var fees   = retail * (s.fee/100);
-    var net    = retail - direct - waste - fees;
-    return {
-      direct:direct, waste:waste, labour:labour, cost:cost, raw:raw, retail:retail,
-      fees:fees, net:net,
-      margin: retail ? net/retail*100 : 0,
-      hourly: s.hours > 0 ? net/s.hours : 0,
-      whole: up10(cost*2),
-      floored: retail > up10(raw)
-    };
-  }
+ function buildInputs(){
+   var frag = document.createDocumentFragment();
+   FIELDS.forEach(function(f){
+     var wrap = document.createElement("div");
+     wrap.className = "field";
 
-  function render(){
-    var t = TIERS[tier], r = calc(tier);
-    el.ttl.textContent = t.title;
-    el.hTier.textContent = t.name;
-    el.hRetail.textContent = fmtCur(r.retail, currency);
-    el.hFx.textContent = "≈ " + fmtCur(r.retail, "EUR") + " · ≈ " +
-      fmtCur(r.retail, "GBP") + " · ≈ " + fmtCur(r.retail, "USD");
+     var lab = document.createElement("label");
+     lab.className = "field__label";
+     lab.htmlFor = "in-" + f.k;
+     lab.textContent = f.l;
 
-    el.oDirect.textContent = fmtCur(r.direct, currency);
-    el.oWaste.textContent  = fmtCur(r.waste, currency);
-    el.oLabour.textContent = fmtCur(r.labour, currency);
-    el.oCost.textContent   = fmtCur(r.cost, currency);
-    el.oWhole.textContent  = fmtCur(r.whole, currency);
-    el.oFees.textContent   = "− " + fmtCur(r.fees, currency);
-    el.oProfit.textContent = fmtCur(r.net, currency);
-    el.oMargin.textContent = r.margin.toFixed(1) + "%";
+     var hint = document.createElement("span");
+     hint.className = "field__hint";
+     hint.textContent = f.h;
+     lab.appendChild(hint);
 
-    el.oHourly.textContent = fmtCur(r.hourly, currency) + "/h";
-    el.barHourly.style.width = clampPct(r.hourly / state.rate * 100) + "%";
-    if(r.hourly < state.rate*0.9) el.barHourly.style.background = "var(--warn)";
-    else el.barHourly.style.background = "var(--good)";
+     var inp = document.createElement("input");
+     inp.id = "in-" + f.k;
+     inp.type = "number";
+     inp.min = "0";
+     inp.step = "any";
+     inp.value = state[f.k];
+     inp.dataset.key = f.k;
+     inp.inputMode = "decimal";
 
-    var addonRetail = Math.max(up10((r.cost*0.4)*4), 140);
-    el.oBundle.textContent = fmtCur(r.retail + addonRetail, currency);
-    el.barBundle.style.width = clampPct((r.retail+addonRetail)/1500*100) + "%";
+     wrap.appendChild(lab);
+     wrap.appendChild(inp);
+     frag.appendChild(wrap);
+   });
+   el.inputs.appendChild(frag);
 
-    var f1 = el.flagFloor;
-    if(r.floored){
-      f1.className = "flag flag--warn";
-      f1.textContent = "Tier floor lifted the price from " + fmtCur(up10(r.raw), currency) +
-        " to the " + t.name + " floor of " + fmtCur(t.floor, currency) +
-        ". Add hours or weight, or move this design to a lower tier.";
-    } else {
-      f1.className = "flag flag--good";
-      f1.textContent = "Price clears the " + t.name + " floor of " + fmtCur(t.floor, currency) + " on its own.";
-    }
+   el.inputs.addEventListener("input", function(e){
+     var k = e.target.dataset.key;
+     if(!k) return;
+     var n = parseFloat(e.target.value);
+     state[k] = isFinite(n) && n >= 0 ? n : 0;
+     render();
+     persist();
+   });
+ }
 
-    var gbp = r.retail/(RATES.GBP || 2.28), f2 = el.flagBench;
-    if(gbp < 150){
-      f2.className = "flag flag--warn";
-      f2.textContent = "≈ £" + Math.round(gbp) + " — below your 150–450 GBP benchmark. Raise rate, weight or tier.";
-    } else if(gbp > 450){
-      f2.className = "flag";
-      f2.textContent = "≈ £" + Math.round(gbp) + " — above the band. Fine for Bold if presentation supports it.";
-    } else {
-      f2.className = "flag flag--good";
-      f2.textContent = "≈ £" + Math.round(gbp) + " — inside your 150–450 GBP benchmark band.";
-    }
+ function curSym(c){ return c === "KM" ? "KM" : c === "EUR" ? "€" : c === "GBP" ? "£" : "$"; }
+ function fmtKM(n){ return Math.round(n).toLocaleString("bs-BA") + " KM"; }
+ function fmtCur(n, c){
+   if(c === "KM") return fmtKM(n);
+   var v = n / (RATES[c] || 1);
+   return v < 1 ? curSym(c) + v.toFixed(2) : curSym(c) + Math.round(v).toLocaleString("en-US");
+ }
 
-    if(r.margin < 40){
-      f2.className = "flag flag--bad";
-      f2.textContent += " Margin is below 40% — your price is mathematically unsustainable.";
-    }
+ function up10(n){ return Math.ceil(n / 10) * 10; }
+ function clamp(p){ return Math.min(Math.max(p, 0), 100); }
 
-    el.cmp.innerHTML = "";
-    Object.keys(TIERS).forEach(function(k){
-      var c = calc(k), tr = document.createElement("tr");
-      if(k === tier) tr.dataset.active = "1";
-      [TIERS[k].name, TIERS[k].mult.toFixed(1), fmtCur(c.retail, currency), fmtCur(c.net, currency), c.margin.toFixed(0)+"%"].forEach(function(v){
-        var td = document.createElement("td"); td.textContent = v; tr.appendChild(td);
-      });
-      el.cmp.appendChild(tr);
-    });
+ function calc(t){
+   var s = state;
+   var direct = s.grams * s.perG + s.cast + s.stones + s.cons + s.ship;
+   var waste = (s.grams * s.perG + s.cast + s.stones + s.cons) * (s.waste / 100);
+   var labour = s.hours * s.rate;
+   var cost = direct + waste + labour;
+   var raw = cost * TIERS[t].mult;
+   var retail = Math.max(up10(raw), TIERS[t].floor);
+   var fees = retail * (s.fee / 100);
+   var net = retail - direct - waste - fees;
+   return {
+     direct: direct,
+     waste: waste,
+     labour: labour,
+     cost: cost,
+     raw: raw,
+     retail: retail,
+     fees: fees,
+     net: net,
+     margin: retail ? net / retail * 100 : 0,
+     hourly: s.hours > 0 ? net / s.hours : 0,
+     whole: up10(cost * 2),
+     floored: retail > up10(raw)
+   };
+ }
 
-    el.selCur.value = currency;
-    el.inEUR.value = RATES.EUR.toFixed(5);
-    el.inGBP.value = RATES.GBP.toFixed(2);
-    el.inUSD.value = RATES.USD.toFixed(2);
-  }
+ function render(){
+   var t = TIERS[tier];
+   var r = calc(tier);
 
-  document.querySelector(".nav__tabs").addEventListener("click", function(e){
-    var b = e.target.closest(".tier");
-    if(!b) return;
-    tier = b.dataset.tier;
-    document.querySelectorAll(".tier").forEach(function(x){ x.setAttribute("aria-pressed", String(x === b)); });
-    render(); persist();
-  });
+   el.ttl.textContent = t.title;
+   el.hTier.textContent = t.name;
+   el.hRetail.textContent = fmtCur(r.retail, currency);
+   el.hFx.textContent = "≈ " + fmtCur(r.retail, "EUR") + " · ≈ " +
+     fmtCur(r.retail, "GBP") + " · ≈ " + fmtCur(r.retail, "USD");
 
-  el.selCur.addEventListener("change", function(){ currency = this.value; render(); persist(); });
+   el.oDirect.textContent = fmtCur(r.direct, currency);
+   el.oWaste.textContent = fmtCur(r.waste, currency);
+   el.oLabour.textContent = fmtCur(r.labour, currency);
+   el.oCost.textContent = fmtCur(r.cost, currency);
+   el.oWhole.textContent = fmtCur(r.whole, currency);
+   el.oFees.textContent = "− " + fmtCur(r.fees, currency);
+   el.oProfit.textContent = fmtCur(r.net, currency);
+   el.oMargin.textContent = r.margin.toFixed(1) + "%";
 
-  el.selMetal.addEventListener("change", function(){
-    var v = parseFloat(this.value);
-    if(!isNaN(v)){
-      state.perG = v;
-      document.querySelector('[data-key="perG"]').value = v;
-      render(); persist();
-    }
-  });
+   el.oHourly.textContent = fmtCur(r.hourly, currency) + "/h";
+   el.barHourly.style.width = clamp(r.hourly / state.rate * 100) + "%";
+   el.barHourly.style.background = (r.hourly < state.rate * 0.9) ? "var(--warn)" : "var(--good)";
 
-  ["inEUR","inGBP","inUSD"].forEach(function(id){
-    document.getElementById(id).addEventListener("input", function(){
-      var c = id.replace("in","");
-      var n = parseFloat(this.value);
-      if(isFinite(n) && n > 0){ RATES[c] = n; render(); persist(); }
-    });
-  });
+   var addon = Math.max(up10(r.cost * 0.4 * 4), 140);
+   el.oBundle.textContent = fmtCur(r.retail + addon, currency);
+   el.barBundle.style.width = clamp((r.retail + addon) / 1500 * 100) + "%";
 
-  document.getElementById("save").addEventListener("click", function(){
-    var name = prompt("Preset name:", currentPreset === DEFAULT_PRESET ? "Design 1" : currentPreset);
-    if(!name) return;
-    currentPreset = name.trim() || DEFAULT_PRESET;
-    persist();
-    renderPresets();
-    var b = this; b.textContent = "Saved";
-    setTimeout(function(){ b.textContent = "Save preset"; }, 1200);
-  });
+   var f1 = el.flagFloor;
+   if(r.floored){
+     f1.className = "flag flag--warn";
+     f1.textContent = "Tier floor lifted the price from " + fmtCur(up10(r.raw), currency) +
+       " to the " + t.name + " floor of " + fmtCur(t.floor, currency) +
+       ". Add hours or weight, or move this design to a lower tier.";
+   } else {
+     f1.className = "flag flag--good";
+     f1.textContent = "Price clears the " + t.name + " floor of " + fmtCur(t.floor, currency) + " on its own.";
+   }
 
-  document.getElementById("reset").addEventListener("click", function(){
-    if(!confirm("Reset current preset to defaults?")) return;
-    FIELDS.forEach(function(f){ state[f.k] = f.v; });
-    document.querySelectorAll("#inputs input").forEach(function(i){ i.value = state[i.dataset.key]; });
-    RATES = {EUR:1.95583, GBP:2.28, USD:1.79};
-    render(); persist();
-  });
+   var gbp = r.retail / (RATES.GBP || 2.28);
+   var f2 = el.flagBench;
+   var msg = "";
+   if(gbp < 150){
+     f2.className = "flag flag--warn";
+     msg = "≈ £" + Math.round(gbp) + " — below your 150–450 GBP benchmark. Raise rate, weight or tier.";
+   } else if(gbp > 450){
+     f2.className = "flag";
+     msg = "≈ £" + Math.round(gbp) + " — above the band. Fine for Bold if presentation supports it.";
+   } else {
+     f2.className = "flag flag--good";
+     msg = "≈ £" + Math.round(gbp) + " — inside your 150–450 GBP benchmark band.";
+   }
+   if(r.margin < 40){
+     f2.className = "flag flag--bad";
+     msg += " Margin is below 40% — the price is mathematically unsustainable.";
+   }
+   f2.textContent = msg;
 
-  document.getElementById("csv").addEventListener("click", function(){
-    var rows = [["field","value_KM"]];
-    FIELDS.forEach(function(f){ rows.push([f.l, state[f.k]]); });
-    rows.push(["currency_rates_EUR", RATES.EUR], ["currency_rates_GBP", RATES.GBP], ["currency_rates_USD", RATES.USD]);
-    rows.push([]);
-    rows.push(["tier","multiplier","floor_KM","retail_KM","true_cost_KM","net_KM","margin_pct","pay_per_hour_KM"]);
-    Object.keys(TIERS).forEach(function(k){
-      var c = calc(k);
-      rows.push([TIERS[k].name, TIERS[k].mult, TIERS[k].floor, Math.round(c.retail),
-        Math.round(c.cost), Math.round(c.net), c.margin.toFixed(1), Math.round(c.hourly)]);
-    });
-    var csv = rows.map(function(r){
-      return r.map(function(v){ return '"' + String(v).replace(/"/g,'""') + '"'; }).join(",");
-    }).join("\n");
-    var blob = new Blob(["\uFEFF" + csv], {type:"text/csv;charset=utf-8;"});
-    var url = URL.createObjectURL(blob);
-    var a = document.createElement("a"); a.href = url; a.download = "doba-pricing.csv";
-    document.body.appendChild(a); a.click(); a.remove();
-    setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
-  });
+   el.cmp.innerHTML = "";
+   Object.keys(TIERS).forEach(function(k){
+     var c = calc(k);
+     var tr = document.createElement("tr");
+     if(k === tier) tr.dataset.active = "1";
+     [TIERS[k].name, TIERS[k].mult.toFixed(1), fmtCur(c.retail, currency), fmtCur(c.net, currency), c.margin.toFixed(0) + "%"].forEach(function(v){
+       var td = document.createElement("td");
+       td.textContent = v;
+       tr.appendChild(td);
+     });
+     el.cmp.appendChild(tr);
+   });
 
-  document.getElementById("print").addEventListener("click", function(){ window.print(); });
+   el.selCur.value = currency;
+   el.selMetal.value = "custom";
+   el.inEUR.value = RATES.EUR.toFixed(5);
+   el.inGBP.value = RATES.GBP.toFixed(2);
+   el.inUSD.value = RATES.USD.toFixed(2);
+ }
 
-  load(); buildInputs(); renderPresets(); render();
-  document.querySelectorAll(".tier").forEach(function(x){
-    x.setAttribute("aria-pressed", String(x.dataset.tier === tier));
-  });
+ document.querySelector(".nav__tabs").addEventListener("click", function(e){
+   var b = e.target.closest(".tier");
+   if(!b) return;
+   tier = b.dataset.tier;
+   document.querySelectorAll(".tier").forEach(function(x){
+     x.setAttribute("aria-pressed", String(x === b));
+   });
+   render();
+   persist();
+ });
+
+ el.selCur.addEventListener("change", function(){
+   currency = this.value;
+   render();
+   persist();
+ });
+
+ el.selMetal.addEventListener("change", function(){
+   var v = parseFloat(this.value);
+   if(isFinite(v)){
+     state.perG = v;
+     var pg = document.getElementById("in-perG");
+     if(pg) pg.value = v;
+     render();
+     persist();
+   }
+ });
+
+ function wireRate(id, code){
+   document.getElementById(id).addEventListener("input", function(){
+     var n = parseFloat(this.value);
+     if(isFinite(n) && n > 0){ RATES[code] = n; render(); persist(); }
+   });
+ }
+ wireRate("inEUR", "EUR");
+ wireRate("inGBP", "GBP");
+ wireRate("inUSD", "USD");
+
+ document.getElementById("save").addEventListener("click", function(){
+   var name = prompt("Preset name:", currentPreset === DEFAULT_PRESET ? "Design 1" : currentPreset);
+   if(name === null) return;
+   name = (name || "").trim();
+   if(!name) name = DEFAULT_PRESET;
+   currentPreset = name;
+   persist();
+   renderPresets();
+   var b = this;
+   var old = b.textContent;
+   b.textContent = "Saved";
+   setTimeout(function(){ b.textContent = old; }, 1200);
+ });
+
+ document.getElementById("reset").addEventListener("click", function(){
+   if(!confirm("Reset current preset to defaults?")) return;
+   state = defaultState();
+   document.querySelectorAll("#inputs input").forEach(function(i){ i.value = state[i.dataset.key]; });
+   RATES = { EUR: 1.95583, GBP: 2.28, USD: 1.79 };
+   currency = "KM";
+   currentPreset = DEFAULT_PRESET;
+   render();
+   persist();
+   renderPresets();
+ });
+
+ document.getElementById("csv").addEventListener("click", function(){
+   var rows = [["field", "value_KM"]];
+   FIELDS.forEach(function(f){ rows.push([f.l, state[f.k]]); });
+   rows.push(["rate_EUR", RATES.EUR], ["rate_GBP", RATES.GBP], ["rate_USD", RATES.USD]);
+   rows.push([]);
+   rows.push(["tier", "multiplier", "floor_KM", "retail_KM", "true_cost_KM", "net_KM", "margin_pct", "pay_per_hour_KM"]);
+   Object.keys(TIERS).forEach(function(k){
+     var c = calc(k);
+     rows.push([
+       TIERS[k].name, TIERS[k].mult, TIERS[k].floor,
+       Math.round(c.retail), Math.round(c.cost), Math.round(c.net),
+       c.margin.toFixed(1), Math.round(c.hourly)
+     ]);
+   });
+   var csv = rows.map(function(r){
+     return r.map(function(v){ return '"' + String(v).replace(/"/g, '""') + '"'; }).join(",");
+   }).join("\n");
+   var blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+   var url = URL.createObjectURL(blob);
+   var a = document.createElement("a");
+   a.href = url; a.download = "doba-pricing.csv";
+   document.body.appendChild(a); a.click(); a.remove();
+   setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+ });
+
+ document.getElementById("print").addEventListener("click", function(){ window.print(); });
+
+ load();
+ buildInputs();
+ renderPresets();
+ document.querySelectorAll(".tier").forEach(function(x){
+   x.setAttribute("aria-pressed", String(x.dataset.tier === tier));
+ });
+ render();
 })();
